@@ -3,62 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KeyCode</title>
+    <title>KeyCode | Plataforma Educacional de Programação</title>
     
-    <!-- Link para o nosso arquivo de estilos CSS externo -->
+    <!-- Link para folha de estilos CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
     <!-- Container principal que centraliza o conteúdo do jogo -->
     <div class="main-container">
-        <!-- Cabeçalho da página -->
-        <header>
-            <h1>KeyCode 🚀</h1>
-            <p id="level-title"></p>
-             <!-- Seletor de Nível -->
-            <div class="level-selector-container">
-                <label for="level-selector">Escolha um nível:</label>
-                <select id="level-selector">
-                    <!-- As opções de nível serão adicionadas pelo JavaScript -->
-                </select>
+        
+        <!-- Cabeçalho da página & HUD Gamer Gamificado -->
+        <header class="app-header">
+            <div class="header-top-row">
+                <div class="brand">
+                    <div class="brand-logo" title="KeyCode">
+                        <svg class="kc-icon kc-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="kcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#2dd4bf" />
+                                    <stop offset="100%" stop-color="#38bdf8" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="3" y="3" width="26" height="26" rx="8" fill="#0f172a" stroke="url(#kcGrad)" stroke-width="2"/>
+                            <path d="M10 11L6.5 16L10 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 11L25.5 16L22 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 8C14.5 10.5 13.5 13.5 13.5 17L16 19L18.5 17C18.5 13.5 17.5 10.5 16 8Z" fill="url(#kcGrad)"/>
+                            <circle cx="16" cy="13.5" r="1.25" fill="#0f172a"/>
+                            <path d="M14 20L13 23M18 20L19 23M16 19V24" stroke="#38bdf8" stroke-width="1.75" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h1>KeyCode</h1>
+                    <span id="level-concept" class="concept-badge">Instruções Sequenciais</span>
+                </div>
+
+                <!-- HUD Gamer: Estrelas, Placar, Som e Reiniciar -->
+                <div class="hud-panel">
+                    <div class="hud-pill" title="Total de estrelas conquistadas em todos os níveis">
+                        <span class="hud-pill-icon kc-star-gold">
+                            <svg class="kc-icon kc-star" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"/>
+                            </svg>
+                        </span>
+                        <span id="total-stars-display">0 / 15</span>
+                    </div>
+                    <div class="hud-pill" title="Pontuação acumulada">
+                        <span class="hud-pill-icon kc-trophy-gold">
+                            <svg class="kc-icon kc-trophy" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 3H18V9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9V3Z" fill="#f59e0b" stroke="#fbbf24" stroke-width="1.5"/>
+                                <path d="M6 5H3C2.44772 5 2 5.44772 2 6V8C2 9.65685 3.34315 11 5 11H6.3" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M18 5H21C21.5523 5 22 5.44772 22 6V8C22 9.65685 20.6569 11 19 11H17.7" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 15V18M8 21H16M9 18H15" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 7L12.7 8.5L14.3 8.7L13.1 9.8L13.4 11.4L12 10.6L10.6 11.4L10.9 9.8L9.7 8.7L11.3 8.5L12 7Z" fill="#ffffff"/>
+                            </svg>
+                        </span>
+                        <span id="total-score-display">0 pts</span>
+                    </div>
+                    <button id="sound-toggle-btn" class="hud-btn" type="button" title="Ativar ou desativar efeitos sonoros">
+                        <span class="btn-icon">
+                            <svg class="kc-icon kc-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" fill-opacity="0.25"/>
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                            </svg>
+                        </span>
+                        <span>Áudio Ativo</span>
+                    </button>
+                    <button id="reset-progress-btn" class="hud-btn hud-btn-outline" type="button" title="Reiniciar histórico e dados salvos">
+                        <span class="btn-icon">
+                            <svg class="kc-icon kc-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L2 8"/>
+                                <polyline points="2 3 2 8 7 8"/>
+                            </svg>
+                        </span>
+                        <span>Reiniciar</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="header-sub-row">
+                <p id="level-title">Nível 1: Primeiros Passos</p>
+                
+                <!-- Seletor de Nível com status de bloqueio -->
+                <div class="level-selector-container">
+                    <label for="level-selector">Selecione o Nível:</label>
+                    <select id="level-selector">
+                        <!-- Gerado dinamicamente pelo JavaScript com status de conclusão -->
+                    </select>
+                </div>
             </div>
         </header>
 
         <!-- Layout do jogo com as duas colunas principais -->
         <div class="game-layout">
 
-            <!-- Coluna da esquerda: Painel de Controle e Código -->
+            <!-- Coluna da esquerda: Painel de Controle e Editor de Código -->
             <aside class="control-panel">
-                <h2>Painel de Controle</h2>
+                <div class="panel-header">
+                    <h2>Editor de Algoritmos</h2>
+                    <span class="editor-subtitle">Escreva instruções reais para o robô</span>
+                </div>
                 
                 <!-- Painel de Instruções com os comandos do jogo -->
                 <div class="instructions-panel">
-                    <h3>Como Jogar</h3>
-                    <p>Seu objetivo é guiar o robô azul até a estrela amarela, evitando paredes e inimigos. Para isso, escreva o codigo no editor abaixo.</p>
-                    <h4>Comandos:</h4>
+                    <div class="instructions-header">
+                        <span class="panel-icon">
+                            <svg class="kc-icon kc-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                <path d="M9 7h6M9 11h4"/>
+                            </svg>
+                        </span>
+                        <h3>Guia de Comandos</h3>
+                    </div>
+                    <p>Guie o robô azul até a estrela amarela, desviando de paredes e eliminando inimigos no caminho.</p>
                     <ul>
-                        <li><span>mover(n)</span>: Move o robô 'n' casas.</li>
-                        <li><span>virarDireita(n)</span>: Vira 90° para a direita 'n' vezes.</li>
-                        <li><span>virarEsquerda(n)</span>: Vira 90° para a esquerda 'n' vezes.</li>
-                        <li><span>atirarNaFrente()</span>: Remove o inimigo 1 casa à sua frente.</li>
+                        <li><span>mover(n)</span>: Avança 'n' casas para frente.</li>
+                        <li><span>virarDireita(n)</span>: Gira 90° à direita 'n' vezes.</li>
+                        <li><span>virarEsquerda(n)</span>: Gira 90° à esquerda 'n' vezes.</li>
+                        <li><span>atirarNaFrente()</span>: Destrói o obstáculo/inimigo 1 casa à frente.</li>
+                        <li><span>repetir(n) { ... }</span>: Laço para repetir comandos 'n' vezes.</li>
                     </ul>
-                     <p class="tip"><strong>Dica:</strong> Se você não colocar um número, como em `mover()`, ele irá se repetir apenas 1 vez.</p>
+                    <p class="tip"><strong>Dica Didática:</strong> Parâmetros vazios como <code>mover()</code> equivalem a 1 repetição.</p>
                 </div>
 
-                <!-- Área de texto onde o jogador escreve o código -->
-                <textarea id="code-editor" rows="8" placeholder="mover(4)&#10;virarDireita()&#10;mover(4)"></textarea>
+                <!-- Chips de Inserção Rápida (Apoio Pedagógico para digitação) -->
+                <div class="quick-chips-wrapper">
+                    <span class="quick-chips-title">Inserção Rápida:</span>
+                    <div class="quick-chips-list">
+                        <button type="button" class="quick-chip" data-insert="mover(1)">+ mover()</button>
+                        <button type="button" class="quick-chip" data-insert="virarDireita()">+ virarDireita()</button>
+                        <button type="button" class="quick-chip" data-insert="virarEsquerda()">+ virarEsquerda()</button>
+                        <button type="button" class="quick-chip" data-insert="atirarNaFrente()">+ atirarNaFrente()</button>
+                        <button type="button" class="quick-chip" data-insert="repetir(2) {\n  mover(1)\n}">+ repetir(2) { }</button>
+                    </div>
+                </div>
+
+                <!-- Banner de Erro de Sintaxe Amigável -->
+                <div id="syntax-error-banner" class="syntax-banner hidden"></div>
+
+                <!-- Status de Linha em Execução em Tempo Real -->
+                <div id="execution-status" class="execution-status hidden"></div>
+
+                <!-- Área de texto onde o aluno escreve o código -->
+                <div class="editor-container">
+                    <textarea id="code-editor" rows="9" spellcheck="false" placeholder="// Digite seu código aqui:&#10;mover(4)&#10;virarDireita()&#10;mover(2)"></textarea>
+                </div>
+
+                <!-- Barra de Controle de Velocidade e Passo a Passo -->
+                <div class="speed-control-bar">
+                    <span class="speed-label">Velocidade:</span>
+                    <div class="speed-buttons-group">
+                        <button type="button" class="speed-btn active" data-speed="normal" title="Velocidade normal">1x</button>
+                        <button type="button" class="speed-btn" data-speed="fast" title="Execução acelerada">2x</button>
+                        <button type="button" class="speed-btn" data-speed="step" title="Avançar comando por comando manualmente">Passo a Passo</button>
+                    </div>
+                    <button type="button" id="step-button" class="btn btn-step" disabled title="Executar o próximo comando no modo Passo a Passo">
+                        <span class="btn-icon">
+                            <svg class="kc-icon kc-step" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="4 5 12 12 4 19 4 5"/>
+                                <polygon points="12 5 20 12 12 19 12 5"/>
+                            </svg>
+                        </span>
+                        <span>Avançar</span>
+                    </button>
+                </div>
                 
-                <!-- Botões de ação -->
+                <!-- Botões de ação principais -->
                 <div class="button-grid">
-                    <button id="run-button" class="btn btn-green">▶ Executar</button>
-                    <button id="reset-button" class="btn btn-red">↻ Limpar</button>
-                    <button id="hint-button" class="btn btn-yellow btn-full">💡 Pegar uma Dica</button>
+                    <button id="run-button" class="btn btn-green">
+                        <span class="btn-icon">
+                            <svg class="kc-icon kc-play" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="6 4 20 12 6 20 6 4"/>
+                            </svg>
+                        </span>
+                        <span>Executar Código</span>
+                    </button>
+                    <button id="reset-button" class="btn btn-red">
+                        <span class="btn-icon">
+                            <svg class="kc-icon kc-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                <line x1="14" y1="11" x2="14" y2="17"/>
+                            </svg>
+                        </span>
+                        <span>Limpar Editor</span>
+                    </button>
+                    <button id="hint-button" class="btn btn-yellow btn-full">
+                        <span class="btn-icon">
+                            <svg class="kc-icon kc-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 18h6M10 22h4"/>
+                                <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
+                            </svg>
+                        </span>
+                        <span>Pegar uma Dica</span>
+                    </button>
                 </div>
             </aside>
 
-            <!-- Coluna da direita: Área do Jogo -->
+            <!-- Coluna da direita: Área do Jogo e Grid 2D -->
             <main class="game-area">
+                <div class="game-area-header">
+                    <h3>Simulação em Tempo Real</h3>
+                    <span class="grid-badge">Grid Interativo 5x5</span>
+                </div>
                 <!-- O grid do jogo será gerado e inserido aqui pelo JavaScript -->
                 <div id="grid-container"></div>
             </main>
@@ -67,29 +215,39 @@
 
     <!-- Rodapé da página -->
     <footer class="footer">
-        Made with
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#f64348" stroke="#f64348" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-        by
-        <a href="https://github.com/PedroPereiraAst" target="_blank">@PedroPereira @RyanCantareli</a>
+        <span>Projeto de Extensão Acadêmica <strong>IFSP Catanduva</strong> &bull; Escola Mario Florence</span>
+        <span class="footer-divider">|</span>
+        <span>Desenvolvido com carinho por <a href="https://github.com/PedroPereiraAst" target="_blank">@PedroPereira</a> &amp; <a href="https://github.com/RyanCantareli" target="_blank">@RyanCantareli</a></span>
     </footer>
 
-    <!-- Modais (Pop-ups) para mensagens e dicas. -->
+    <!-- Modal Gamificado (Vitória com Estrelas, Erro ou Colisão) -->
     <div id="message-box" class="modal">
-        <h2 id="message-title"></h2>
+        <div id="message-title" class="modal-title"></div>
+        <div id="modal-stars-container"></div>
+        <div id="modal-score-breakdown"></div>
         <p id="message-text"></p>
-        <button id="next-level-button" class="btn btn-teal">Próximo Nível</button>
-        <button id="try-again-button" class="btn btn-amber">Tentar Novamente</button>
+        <div class="modal-buttons">
+            <button id="next-level-button" class="btn btn-teal">Próximo Nível</button>
+            <button id="try-again-button" class="btn btn-amber">Tentar Novamente</button>
+        </div>
     </div>
 
+    <!-- Modal de Dicas -->
     <div id="hint-box" class="modal">
-        <h2 class="modal-title-hint">💡 Dica</h2>
+        <h2 class="modal-title-hint">
+            <span class="modal-hint-icon">
+                <svg class="kc-icon kc-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18h6M10 22h4"/>
+                    <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
+                </svg>
+            </span>
+            <span>Dica Pedagógica</span>
+        </h2>
         <p id="hint-text"></p>
-        <button id="close-hint-button" class="btn btn-gray">Entendi!</button>
+        <button id="close-hint-button" class="btn btn-gray">Entendi, vamos lá!</button>
     </div>
 
-    <!-- Link para o nosso arquivo JavaScript -->
+    <!-- Script Principal como Módulo ES6 -->
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

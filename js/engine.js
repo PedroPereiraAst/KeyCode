@@ -1,219 +1,664 @@
+// =============================================================================
+// KEYCODE - MOTOR DE JOGO 2D & INTERPRETADOR DIDÁTICO
+// Inclui validação de sintaxe amigável (BNCC), suporte a laços repetir(n),
+// controle de velocidade, efeitos sonoros (Web Audio) e gamificação (3 estrelas).
+// =============================================================================
+
 import { levels } from './levels.js';
-import { elements, showMessageBox } from './ui.js';
+import { elements, showMessageBox, showSyntaxError, clearSyntaxError, updateHUD, updateActiveExecutionLine } from './ui.js';
+import { sound } from './audio.js';
+import { calculateResult, recordLevelVictory, recordLevelAttempt, isLevelUnlocked } from './storage.js';
+import { Icons } from './icons.js';
 
 let currentLevel = 0;
 let activeEnemies = [];
 let robotState = {};
 let goalState = {};
-let robotElement, goalElement;
+let robotElement = null;
+let goalElement = null;
 
-export function getCurrentLevel() { return currentLevel; }
-export function setCurrentLevel(level) { currentLevel = level; }
+// Controle de execução
+let executionSpeed = 'normal'; // 'normal' (380ms), 'fast' (180ms), 'step' (manual)
+let isRunning = false;
+let executionTimeout = null;
+let usedHintInCurrentAttempt = false;
+let pendingStepCallback = null;
+
+export function getCurrentLevel() {
+    return currentLevel;
+}
+
+export function setCurrentLevel(level) {
+    currentLevel = Math.max(0, Math.min(level, levels.length - 1));
+}
+
+export function getExecutionSpeed() {
+    return executionSpeed;
+}
+
+export function setExecutionSpeed(speed) {
+    executionSpeed = speed;
+}
+
+export function markHintUsed() {
+    usedHintInCurrentAttempt = true;
+}
+
+export function hasUsedHint() {
+    return usedHintInCurrentAttempt;
+}
 
 export function nextLevel() {
-    if (currentLevel >= levels.length - 1) {
-        currentLevel = 0;
-    } else {
+    if (currentLevel < levels.length - 1) {
         currentLevel++;
+    } else {
+        currentLevel = 0;
     }
 }
 
+/**
+ * Monta o nível no grid e desenha paredes, inimigos e robô.
+ */
 export function setupLevel(levelIndex) {
-    const level = levels[levelIndex];
+    if (executionTimeout) {
+        clearTimeout(executionTimeout);
+        executionTimeout = null;
+    }
+    isRunning = false;
+    pendingStepCallback = null;
+
+    currentLevel = levelIndex;
+    const level = levels[currentLevel];
+
     elements.levelTitle.textContent = level.title;
     robotState = { ...level.robot };
     goalState = { ...level.goal };
     activeEnemies = level.enemies ? JSON.parse(JSON.stringify(level.enemies)) : [];
-    
-    // Limpa o grid e o recria com o tamanho certo para o nível.
+
+    // Limpa erros visuais de sintaxe
+    clearSyntaxError();
+    updateActiveExecutionLine(null);
+
+    // Limpa o grid e recria as células dinamicamente
     elements.gridContainer.innerHTML = '';
     elements.gridContainer.style.gridTemplateColumns = `repeat(${level.gridSize}, 1fr)`;
     elements.gridContainer.style.gridTemplateRows = `repeat(${level.gridSize}, 1fr)`;
 
-    for (let i = 0; i < level.gridSize * level.gridSize; i++) {
+    const totalCells = level.gridSize * level.gridSize;
+    for (let i = 0; i < totalCells; i++) {
         const cell = document.createElement('div');
         cell.classList.add('grid-cell');
+        cell.dataset.index = i;
         elements.gridContainer.appendChild(cell);
     }
-    
-    // Desenha as paredes, se existirem no nível.
+
+    // Desenha as paredes
     if (level.walls) {
         level.walls.forEach(wall => {
             const wallEl = createCharacter('wall', wall.x, wall.y);
             const cellIndex = wall.y * level.gridSize + wall.x;
-            if(elements.gridContainer.children[cellIndex]) elements.gridContainer.children[cellIndex].appendChild(wallEl);
+            if (elements.gridContainer.children[cellIndex]) {
+                elements.gridContainer.children[cellIndex].appendChild(wallEl);
+            }
         });
     }
-    
-    // Desenha os inimigos, se existirem.
+
+    // Desenha os inimigos
     activeEnemies.forEach(enemy => {
         const enemyEl = createCharacter('enemy', enemy.x, enemy.y);
         const cellIndex = enemy.y * level.gridSize + enemy.x;
-        if(elements.gridContainer.children[cellIndex]) elements.gridContainer.children[cellIndex].appendChild(enemyEl);
+        if (elements.gridContainer.children[cellIndex]) {
+            elements.gridContainer.children[cellIndex].appendChild(enemyEl);
+        }
     });
 
-    // Cria os elementos do robô e do objetivo.
-    robotElement = createCharacter('robot');
-    goalElement = createCharacter('goal');
-    
-    // Desenha o estado inicial do jogo.
+    // Cria elementos do robô e da estrela
+    robotElement = createCharacter('robot', robotState.x, robotState.y);
+    goalElement = createCharacter('goal', goalState.x, goalState.y);
+
     render();
+    updateHUD();
 }
 
+/**
+ * Cria elementos SVG dos componentes do tabuleiro.
+ */
 function createCharacter(type, x, y) {
     const el = document.createElement('div');
     el.classList.add(type);
-    el.dataset.x = x;
-    el.dataset.y = y;
+    if (x !== undefined) el.dataset.x = x;
+    if (y !== undefined) el.dataset.y = y;
 
-    switch(type) {
+    switch (type) {
         case 'robot':
             el.id = 'robot';
-            el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="text-blue-600"><path d="M12 2a2 2 0 0 1 2 2v2h-4V4a2 2 0 0 1 2-2zM6.75 8a.75.75 0 0 0 0 1.5h10.5a.75.75 0 0 0 0-1.5H6.75zM5 12a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-5zm2 0v5h10v-5H7z"/></svg>`;
+            el.innerHTML = Icons.robot;
             break;
         case 'goal':
             el.id = 'goal';
-            el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-400"><path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z" clip-rule="evenodd" /></svg>`;
+            el.innerHTML = Icons.goal;
             break;
         case 'wall':
-            el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9.75l-9-5.25M12 21V11.25" /></svg>`;
+            el.innerHTML = Icons.wall;
             break;
         case 'enemy':
-            el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-2.625 6a.75.75 0 00-1.06 1.06l1.06 1.06a.75.75 0 001.06-1.06l-1.06-1.06zm5.625-.001a.75.75 0 00-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06z" /><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-3.375 6.75a.75.75 0 011.06 0l1.5 1.5a.75.75 0 01-1.06 1.06l-1.5-1.5a.75.75 0 010-1.06zm6.375 0a.75.75 0 00-1.06 0l-1.5 1.5a.75.75 0 001.06 1.06l1.5-1.5a.75.75 0 000-1.06z" clip-rule="evenodd" /></svg>`;
+            el.innerHTML = Icons.enemy;
             break;
     }
     return el;
 }
 
+/**
+ * Posiciona visualmente o robô e o objetivo no grid.
+ */
 function render() {
-    const robotCellIndex = robotState.y * levels[currentLevel].gridSize + robotState.x;
-    if(elements.gridContainer.children[robotCellIndex]) {
+    const gridSize = levels[currentLevel].gridSize;
+    const robotCellIndex = robotState.y * gridSize + robotState.x;
+
+    if (elements.gridContainer.children[robotCellIndex]) {
         elements.gridContainer.children[robotCellIndex].appendChild(robotElement);
     }
     robotElement.style.transform = `rotate(${robotState.dir * 90}deg)`;
 
-    const goalCellIndex = goalState.y * levels[currentLevel].gridSize + goalState.x;
-     if(elements.gridContainer.children[goalCellIndex] && !elements.gridContainer.children[goalCellIndex].contains(goalElement)) {
+    const goalCellIndex = goalState.y * gridSize + goalState.x;
+    if (elements.gridContainer.children[goalCellIndex] && !elements.gridContainer.children[goalCellIndex].contains(goalElement)) {
         elements.gridContainer.children[goalCellIndex].appendChild(goalElement);
     }
 }
 
+/**
+ * Reseta o nível atual, limpando o editor e redefinindo estados.
+ */
 export function resetLevel() {
+    usedHintInCurrentAttempt = false;
     elements.codeEditor.value = '';
     setupLevel(currentLevel);
 }
 
-export function parseAndRunCommands() {
-    elements.runButton.disabled = true;
-    elements.resetButton.disabled = true;
-    setupLevel(currentLevel); // Reseta o nível antes de rodar o código.
+// =============================================================================
+// PARSER DIDÁTICO E VALIDADOR DE SINTAXE
+// Fornece mensagens claras e acolhedoras para alunos do ensino médio.
+// Suporta comandos simples e blocos repetir(n) { ... }.
+// =============================================================================
 
-    const code = elements.codeEditor.value;
+const KNOWN_COMMANDS = ['mover', 'virardireita', 'viraresquerda', 'atirarnafrente', 'repetir'];
+
+/**
+ * Sugestões ortográficas para erros comuns de digitação.
+ */
+function getSuggestionForTypo(word) {
+    const w = word.toLowerCase();
+    if (['movr', 'mova', 'andar', 'avancar', 'moove', 'move'].includes(w)) return 'mover';
+    if (['direita', 'viradireita', 'virardireta', 'girardireita'].includes(w)) return 'virarDireita';
+    if (['esquerda', 'viraresquerd', 'giraresquerda'].includes(w)) return 'virarEsquerda';
+    if (['atirar', 'tiro', 'disparar', 'atira'].includes(w)) return 'atirarNaFrente';
+    if (['repete', 'repeti', 'loop', 'for'].includes(w)) return 'repetir';
+    return null;
+}
+
+/**
+ * Tokenizador léxico para o código do KeyCode.
+ * Preserva números de linha, remove comentários e suporta blocos e comandos em linha única.
+ */
+function tokenize(code) {
+    const tokens = [];
     const lines = code.split('\n');
-    const commands = [];
-    
-    const commandRegex = /(\w+)\s*\(\s*(\d*)\s*\)/;
 
-    for(const line of lines) {
-        const cleanedLine = line.trim().toLowerCase();
-        if (cleanedLine === '') continue;
+    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+        const lineNum = lineIdx + 1;
+        let line = lines[lineIdx];
 
-        const match = cleanedLine.match(commandRegex);
+        // Remove comentários de linha (// ou #)
+        const commentIdx = line.search(/(\/\/|#)/);
+        if (commentIdx !== -1) {
+            line = line.substring(0, commentIdx);
+        }
 
-        if (match) {
-            const commandName = match[1];
-            const count = parseInt(match[2] || '1', 10);
+        let col = 0;
+        while (col < line.length) {
+            const ch = line[col];
 
-            let action = null;
-            if (commandName === 'mover') action = 'move';
-            if (commandName === 'virardireita') action = 'right';
-            if (commandName === 'viraresquerda') action = 'left';
-            if (commandName === 'atirarnafrente') action = 'shoot';
-
-            if (action) {
-                for (let i = 0; i < count; i++) {
-                    commands.push(action);
-                }
+            // Ignora espaços e tabs
+            if (/\s/.test(ch)) {
+                col++;
+                continue;
             }
+
+            // Símbolos estruturais
+            if (ch === '(') { tokens.push({ type: 'LPAREN', value: '(', lineNum, col, rawLine: lines[lineIdx].trim() }); col++; continue; }
+            if (ch === ')') { tokens.push({ type: 'RPAREN', value: ')', lineNum, col, rawLine: lines[lineIdx].trim() }); col++; continue; }
+            if (ch === '{') { tokens.push({ type: 'LBRACE', value: '{', lineNum, col, rawLine: lines[lineIdx].trim() }); col++; continue; }
+            if (ch === '}') { tokens.push({ type: 'RBRACE', value: '}', lineNum, col, rawLine: lines[lineIdx].trim() }); col++; continue; }
+            if (ch === ';') { tokens.push({ type: 'SEMICOLON', value: ';', lineNum, col, rawLine: lines[lineIdx].trim() }); col++; continue; }
+
+            // Números (incluindo negativos)
+            if (ch === '-' && col + 1 < line.length && /\d/.test(line[col + 1])) {
+                let numStr = '-';
+                col++;
+                const startCol = col - 1;
+                while (col < line.length && /\d/.test(line[col])) {
+                    numStr += line[col];
+                    col++;
+                }
+                tokens.push({ type: 'NUMBER', value: parseInt(numStr, 10), raw: numStr, lineNum, col: startCol, rawLine: lines[lineIdx].trim() });
+                continue;
+            }
+
+            if (/\d/.test(ch)) {
+                let numStr = '';
+                const startCol = col;
+                while (col < line.length && /\d/.test(line[col])) {
+                    numStr += line[col];
+                    col++;
+                }
+                tokens.push({ type: 'NUMBER', value: parseInt(numStr, 10), raw: numStr, lineNum, col: startCol, rawLine: lines[lineIdx].trim() });
+                continue;
+            }
+
+            // Identificadores de comando (mover, virarDireita, repetir, etc.)
+            if (/[a-zA-Z_]/.test(ch)) {
+                let idStr = '';
+                const startCol = col;
+                while (col < line.length && /[a-zA-Z0-9_]/.test(line[col])) {
+                    idStr += line[col];
+                    col++;
+                }
+                tokens.push({ type: 'IDENT', value: idStr, lineNum, col: startCol, rawLine: lines[lineIdx].trim() });
+                continue;
+            }
+
+            // Caractere desconhecido
+            tokens.push({ type: 'UNKNOWN', value: ch, lineNum, col, rawLine: lines[lineIdx].trim() });
+            col++;
         }
     }
 
-    let i = 0;
-    const executeNext = () => {
-        if (i >= commands.length) {
-            checkWinCondition();
+    tokens.push({ type: 'EOF', value: '', lineNum: lines.length, col: 0, rawLine: '' });
+    return { tokens, lines };
+}
+
+/**
+ * Valida o código do aluno e extrai a lista ordenada de instruções executáveis.
+ * Suporta blocos: repetir(n) { ... }, tanto em linhas separadas quanto inline.
+ */
+export function parseCode(code) {
+    const rawLines = code.split('\n');
+    let validLineCount = 0;
+
+    for (let idx = 0; idx < rawLines.length; idx++) {
+        const text = rawLines[idx].trim();
+        if (text !== '' && !text.startsWith('//') && !text.startsWith('#')) {
+            validLineCount++;
+        }
+    }
+
+    if (validLineCount === 0) {
+        return { error: 'O editor está vazio! Escreva comandos como mover(4) para iniciar.' };
+    }
+
+    const { tokens } = tokenize(code);
+    let pos = 0;
+
+    function peek() {
+        return tokens[pos];
+    }
+
+    function next() {
+        return tokens[pos++];
+    }
+
+    function parseBlockOrStatements(isBlock = false) {
+        const actions = [];
+
+        while (peek().type !== 'EOF') {
+            if (isBlock && peek().type === 'RBRACE') {
+                break;
+            }
+
+            if (peek().type === 'SEMICOLON') {
+                next();
+                continue;
+            }
+
+            if (peek().type === 'RBRACE') {
+                const token = next();
+                return { error: `Linha ${token.lineNum}: Chave de fechamento '}' encontrada sem um bloco correspondente.` };
+            }
+
+            if (peek().type === 'UNKNOWN') {
+                const token = next();
+                return { error: `Linha ${token.lineNum}: Caractere inesperado '${token.value}'.` };
+            }
+
+            if (peek().type !== 'IDENT') {
+                const token = next();
+                return { error: `Linha ${token.lineNum}: Formato inválido em "${token.rawLine}". Escreva os comandos no padrão: comando() ou comando(número).` };
+            }
+
+            const identToken = next();
+            const cmdName = identToken.value.toLowerCase();
+
+            // Bloco de Repetição: repetir(n) { ... }
+            if (cmdName === 'repetir') {
+                if (peek().type !== 'LPAREN') {
+                    return { error: `Linha ${identToken.lineNum}: Faltam parênteses no comando "repetir". O formato correto é "repetir(n) { ... }".` };
+                }
+                next(); // '('
+
+                if (peek().type !== 'NUMBER') {
+                    return { error: `Linha ${identToken.lineNum}: Você precisa informar quantas vezes repetir dentro dos parênteses. Exemplo: repetir(3) { mover() }` };
+                }
+                const countToken = next();
+                const count = countToken.value;
+
+                if (count <= 0 || count > 50) {
+                    return { error: `Linha ${countToken.lineNum}: O número de repetições deve ser entre 1 e 50.` };
+                }
+
+                if (peek().type !== 'RPAREN') {
+                    return { error: `Linha ${countToken.lineNum}: Faltou fechar o parêntese ")" após o número de repetições.` };
+                }
+                next(); // ')'
+
+                if (peek().type !== 'LBRACE') {
+                    return { error: `Linha ${identToken.lineNum}: O comando repetir(...) precisa de um bloco com chaves { }. Exemplo: repetir(${count}) { mover() }` };
+                }
+                next(); // '{'
+
+                const innerResult = parseBlockOrStatements(true);
+                if (innerResult.error) return innerResult;
+
+                if (peek().type !== 'RBRACE') {
+                    return { error: `Linha ${identToken.lineNum}: Bloco repetir(...) não foi fechado com '}'. Lembre-se de fechar a chave!` };
+                }
+                next(); // '}'
+
+                if (peek().type === 'SEMICOLON') {
+                    next();
+                }
+
+                // Replica as ações n vezes
+                for (let c = 0; c < count; c++) {
+                    for (const act of innerResult.actions) {
+                        actions.push({ ...act, sourceLine: identToken.lineNum });
+                    }
+                }
+                continue;
+            }
+
+            // Comandos atômicos
+            if (peek().type !== 'LPAREN') {
+                const suggestion = getSuggestionForTypo(identToken.value) || identToken.value;
+                return {
+                    error: `Linha ${identToken.lineNum}: Faltam parênteses no comando "${identToken.rawLine}". O formato correto é "${suggestion}()" ou "${suggestion}(n)".`
+                };
+            }
+            next(); // '('
+
+            let count = 1;
+            let countStr = '';
+            if (peek().type === 'NUMBER') {
+                const numToken = next();
+                count = numToken.value;
+                countStr = numToken.raw;
+                if (count < 1 || count > 20) {
+                    return { error: `Linha ${numToken.lineNum}: O valor "${numToken.raw}" é inválido. Utilize um número de 1 a 20.` };
+                }
+            } else if (peek().type !== 'RPAREN') {
+                return { error: `Linha ${identToken.lineNum}: O valor dentro dos parênteses deve ser um número de 1 a 20.` };
+            }
+
+            if (peek().type !== 'RPAREN') {
+                return { error: `Linha ${identToken.lineNum}: Formato inválido em "${identToken.rawLine}". Escreva os comandos no padrão: comando() ou comando(número).` };
+            }
+            next(); // ')'
+
+            if (peek().type === 'SEMICOLON') {
+                next();
+            }
+
+            if (!KNOWN_COMMANDS.includes(cmdName)) {
+                const suggestion = getSuggestionForTypo(identToken.value);
+                if (suggestion) {
+                    return { error: `Linha ${identToken.lineNum}: Comando "${identToken.value}" não existe. Você quis dizer "${suggestion}()"?` };
+                }
+                return { error: `Linha ${identToken.lineNum}: Comando "${identToken.value}" não reconhecido. Consulte os comandos válidos no painel lateral.` };
+            }
+
+            let actionType = null;
+            if (cmdName === 'mover') actionType = 'move';
+            if (cmdName === 'virardireita') actionType = 'right';
+            if (cmdName === 'viraresquerda') actionType = 'left';
+            if (cmdName === 'atirarnafrente') actionType = 'shoot';
+
+            for (let k = 0; k < count; k++) {
+                actions.push({
+                    type: actionType,
+                    label: `${identToken.value}(${countStr})`,
+                    lineNum: identToken.lineNum
+                });
+            }
+        }
+
+        return { actions };
+    }
+
+    const parseResult = parseBlockOrStatements(false);
+    if (parseResult.error) return parseResult;
+
+    return {
+        commands: parseResult.actions,
+        totalLinesWritten: validLineCount
+    };
+}
+
+// =============================================================================
+// EXECUÇÃO DO CÓDIGO & MOTOR DE ANIMAÇÃO
+// =============================================================================
+
+export function parseAndRunCommands() {
+    if (isRunning) return;
+
+    sound.initContext();
+    clearSyntaxError();
+
+    const code = elements.codeEditor.value;
+    const parseResult = parseCode(code);
+
+    if (parseResult.error) {
+        sound.playError();
+        showSyntaxError(parseResult.error);
+        return;
+    }
+
+    const commands = parseResult.commands;
+    const totalLinesWritten = parseResult.totalLinesWritten;
+
+    if (commands.length === 0) {
+        sound.playError();
+        showSyntaxError('Nenhum comando executável foi encontrado no editor.');
+        return;
+    }
+
+    // Configura o tabuleiro no estado inicial antes de rodar
+    setupLevel(currentLevel);
+
+    isRunning = true;
+    elements.runButton.disabled = true;
+    elements.resetButton.disabled = true;
+
+    // Atualiza botão do modo passo a passo se necessário
+    if (elements.stepButton) elements.stepButton.disabled = false;
+
+    let cmdIndex = 0;
+
+    function getDelay() {
+        if (executionSpeed === 'fast') return 160;
+        return 380; // normal
+    }
+
+    function executeNext() {
+        if (!isRunning) return;
+
+        if (cmdIndex >= commands.length) {
+            isRunning = false;
+            updateActiveExecutionLine(null);
+            elements.runButton.disabled = false;
+            elements.resetButton.disabled = false;
+            if (elements.stepButton) elements.stepButton.disabled = true;
+            checkWinCondition(totalLinesWritten);
             return;
         }
-        const command = commands[i];
-        let hitObstacle = false;
 
+        const cmd = commands[cmdIndex];
+        updateActiveExecutionLine(cmd.lineNum, cmd.label);
+
+        let hitObstacle = false;
         let targetX = robotState.x;
         let targetY = robotState.y;
-        if (robotState.dir === 0) targetY--; // Cima
-        if (robotState.dir === 1) targetX++; // Direita
-        if (robotState.dir === 2) targetY++; // Baixo
-        if (robotState.dir === 3) targetX--; // Esquerda
 
-        switch (command) {
+        // 0: Cima, 1: Direita, 2: Baixo, 3: Esquerda
+        if (robotState.dir === 0) targetY--;
+        if (robotState.dir === 1) targetX++;
+        if (robotState.dir === 2) targetY++;
+        if (robotState.dir === 3) targetX--;
+
+        const gridSize = levels[currentLevel].gridSize;
+
+        switch (cmd.type) {
             case 'move':
                 const walls = levels[currentLevel].walls || [];
-                const isBlocked = walls.some(wall => wall.x === targetX && wall.y === targetY) ||
-                                activeEnemies.some(enemy => enemy.x === targetX && enemy.y === targetY);
-                
-                if (isBlocked) {
+                const isWall = walls.some(w => w.x === targetX && w.y === targetY);
+                const isEnemy = activeEnemies.some(e => e.x === targetX && e.y === targetY);
+                const isOutOfBounds = targetX < 0 || targetX >= gridSize || targetY < 0 || targetY >= gridSize;
+
+                if (isWall || isEnemy || isOutOfBounds) {
                     hitObstacle = true;
-                    break;
-                }
-                if (targetX >= 0 && targetX < levels[currentLevel].gridSize && targetY >= 0 && targetY < levels[currentLevel].gridSize) {
+                } else {
                     robotState.x = targetX;
                     robotState.y = targetY;
+                    sound.playMove();
                 }
                 break;
-            
+
             case 'shoot':
-                const enemyIndex = activeEnemies.findIndex(e => e.x === targetX && e.y === targetY);
-                if (enemyIndex > -1) {
-                    activeEnemies.splice(enemyIndex, 1);
+                sound.playShoot();
+                triggerLaserEffect(robotState.x, robotState.y, targetX, targetY);
+
+                const enemyIdx = activeEnemies.findIndex(e => e.x === targetX && e.y === targetY);
+                if (enemyIdx > -1) {
+                    activeEnemies.splice(enemyIdx, 1);
                     const enemyEl = document.querySelector(`.enemy[data-x='${targetX}'][data-y='${targetY}']`);
                     if (enemyEl) {
+                        enemyEl.style.transition = 'all 0.3s ease-out';
+                        enemyEl.style.transform = 'scale(1.4) rotate(45deg)';
                         enemyEl.style.opacity = '0';
-                        setTimeout(() => enemyEl.remove(), 300);
+                        setTimeout(() => enemyEl.remove(), 320);
                     }
                 }
                 break;
 
             case 'right':
                 robotState.dir = (robotState.dir + 1) % 4;
+                sound.playTurn();
                 break;
+
             case 'left':
                 robotState.dir = (robotState.dir + 3) % 4;
+                sound.playTurn();
                 break;
-        }
-
-        if (hitObstacle) {
-            showMessageBox('wall');
-            elements.runButton.disabled = false;
-            elements.resetButton.disabled = false;
-            return;
         }
 
         render();
-        i++;
-        setTimeout(executeNext, 400);
-    };
-    
+
+        if (hitObstacle) {
+            isRunning = false;
+            sound.playHit();
+            triggerCollisionEffect();
+            recordLevelAttempt(currentLevel);
+            updateActiveExecutionLine(null);
+            elements.runButton.disabled = false;
+            elements.resetButton.disabled = false;
+            if (elements.stepButton) elements.stepButton.disabled = true;
+
+            setTimeout(() => {
+                showMessageBox('wall');
+            }, 300);
+            return;
+        }
+
+        cmdIndex++;
+
+        // Modo Passo a Passo ou Temporizador Automático
+        if (executionSpeed === 'step') {
+            pendingStepCallback = executeNext;
+        } else {
+            executionTimeout = setTimeout(executeNext, getDelay());
+        }
+    }
+
     executeNext();
 }
 
-function checkWinCondition() {
+/**
+ * Avança exatamente um passo quando o jogador estiver no modo 'Passo a Passo'.
+ */
+export function stepForward() {
+    if (pendingStepCallback) {
+        const cb = pendingStepCallback;
+        pendingStepCallback = null;
+        cb();
+    }
+}
+
+/**
+ * Efeito visual de feixe de laser ao atirar.
+ */
+function triggerLaserEffect(fromX, fromY, toX, toY) {
+    const gridSize = levels[currentLevel].gridSize;
+    const targetCellIndex = toY * gridSize + toX;
+    const targetCell = elements.gridContainer.children[targetCellIndex];
+
+    if (targetCell) {
+        targetCell.classList.add('laser-flash');
+        setTimeout(() => targetCell.classList.remove('laser-flash'), 300);
+    }
+}
+
+/**
+ * Efeito visual de impacto / vibração ao colidir.
+ */
+function triggerCollisionEffect() {
+    if (robotElement) {
+        robotElement.classList.add('robot-collision-shake');
+        setTimeout(() => robotElement.classList.remove('robot-collision-shake'), 400);
+    }
+}
+
+/**
+ * Avalia se o robô chegou na estrela (condição de vitória).
+ */
+function checkWinCondition(linesCount) {
     const isAtGoal = robotState.x === goalState.x && robotState.y === goalState.y;
     const isLastLevel = currentLevel >= levels.length - 1;
-    
+
     if (isAtGoal) {
-        showMessageBox('success', isLastLevel);
+        sound.playSuccess();
+        const levelConfig = levels[currentLevel];
+        const result = calculateResult(currentLevel, {
+            linesCount,
+            usedHint: usedHintInCurrentAttempt,
+            optimalLines: levelConfig.optimalLines || 5
+        });
+
+        // Salva vitória no localStorage
+        recordLevelVictory(currentLevel, result, levels.length);
+        updateHUD();
+
+        showMessageBox('success', isLastLevel, result);
     } else {
+        sound.playHit();
+        recordLevelAttempt(currentLevel);
         showMessageBox('fail', isLastLevel);
     }
-    elements.runButton.disabled = false;
-    elements.resetButton.disabled = false;
 }
