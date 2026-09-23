@@ -1,0 +1,1570 @@
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Documento Oficial: Análise Técnica & Pedagógica - KeyCode e BNCC Computação</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Mermaid.js -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #007038; /* Verde Oficial IFSP */
+      --primary-dark: #004d26;
+      --primary-light: #e8f5ed;
+      --secondary: #d32f2f; /* Vermelho Oficial IFSP */
+      --secondary-light: #fde8e8;
+      --accent-blue: #1d4ed8;
+      --accent-blue-bg: #eff6ff;
+      --accent-purple: #7e22ce;
+      --accent-purple-bg: #faf5ff;
+      --accent-amber: #b45309;
+      --accent-amber-bg: #fffbeb;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --code-bg: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 10pt;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Page configuration for print */
+    @page {
+      size: A4 portrait;
+      margin: 18mm 16mm 18mm 16mm;
+      @top-right {
+        content: "IFSP Catanduva — Sistema KeyCode & BNCC";
+        font-family: 'Inter', sans-serif;
+        font-size: 7.5pt;
+        color: #94a3b8;
+      }
+      @bottom-left {
+        content: "CTDPEX1 — Projeto de Extensão 1 (2026)";
+        font-family: 'Inter', sans-serif;
+        font-size: 7.5pt;
+        color: #94a3b8;
+      }
+      @bottom-right {
+        content: "Página " counter(page) " de " counter(pages);
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        font-weight: 600;
+        color: #64748b;
+      }
+    }
+
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .no-break {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      .bncc-card, .module-item, .pillar-card, .conclusion-item, .maturity-card, .table-container, .diagram-container, .signature-area, .metadata-grid, .doc-hero {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Institutional Header */
+    .inst-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .inst-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .inst-logo-svg {
+      width: 44px;
+      height: 52px;
+      flex-shrink: 0;
+    }
+
+    .inst-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .inst-name {
+      font-size: 10.5pt;
+      font-weight: 800;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: -0.2px;
+    }
+
+    .inst-campus {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .inst-dept {
+      font-size: 8pt;
+      color: var(--text-muted);
+    }
+
+    .inst-badge-sem {
+      background: var(--primary-light);
+      border: 1px solid #bbf7d0;
+      color: var(--primary-dark);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 8pt;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Document Title Banner */
+    .doc-hero {
+      background: linear-gradient(135deg, #093b22 0%, #007038 60%, #028444 100%);
+      color: #ffffff;
+      padding: 18px 22px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0, 112, 56, 0.12);
+    }
+
+    .doc-type-pill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .doc-hero h1 {
+      font-size: 14pt;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+
+    .doc-hero p.subtitle {
+      font-size: 9.8pt;
+      color: #e2e8f0;
+      font-weight: 400;
+      line-height: 1.35;
+    }
+
+    /* Metadata Grid */
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 1px;
+    }
+
+    .meta-value {
+      font-size: 8.8pt;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .meta-value.full-width {
+      grid-column: span 2;
+    }
+
+    /* Headings */
+    h2 {
+      font-size: 12pt;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0 10px 0;
+      padding-bottom: 4px;
+      border-bottom: 2px solid var(--border-color);
+      page-break-after: avoid;
+    }
+
+    h2 .section-num {
+      background: var(--primary);
+      color: #ffffff;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      font-size: 8.5pt;
+      font-weight: 800;
+    }
+
+    h3 {
+      font-size: 10.2pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 14px 0 8px 0;
+      page-break-after: avoid;
+    }
+
+    h4 {
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: #334155;
+      margin: 10px 0 6px 0;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 8px;
+      text-align: justify;
+    }
+
+    /* Cognitive Maturity Cards */
+    .maturity-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0 14px 0;
+      page-break-inside: avoid;
+    }
+
+    .maturity-card {
+      border-radius: 7px;
+      border: 1px solid var(--border-color);
+      padding: 10px 12px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .maturity-card.warning {
+      border-top: 4px solid #f59e0b;
+      background: #fffdfa;
+    }
+
+    .maturity-card.transition {
+      border-top: 4px solid #10b981;
+      background: #f7fee7;
+    }
+
+    .maturity-card.sweet-spot {
+      border-top: 4px solid var(--primary);
+      background: #f0fdf4;
+      box-shadow: 0 2px 6px rgba(0, 112, 56, 0.08);
+    }
+
+    .maturity-title {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 3px;
+    }
+
+    .maturity-badge {
+      display: inline-block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      width: fit-content;
+    }
+
+    .maturity-card.warning .maturity-badge {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .maturity-card.transition .maturity-badge {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .maturity-card.sweet-spot .maturity-badge {
+      background: #bbf7d0;
+      color: #14532d;
+    }
+
+    .maturity-desc {
+      font-size: 8pt;
+      color: #334155;
+      line-height: 1.4;
+    }
+
+    /* Highlight list */
+    .highlight-list {
+      list-style: none;
+      margin: 8px 0 14px 0;
+    }
+
+    .highlight-list li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 6px;
+      font-size: 9pt;
+      text-align: justify;
+    }
+
+    .highlight-list li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 9pt;
+    }
+
+    /* Mermaid Architecture Diagram Container */
+    .diagram-container {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+
+    .diagram-caption {
+      font-size: 7.8pt;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    /* Modules List */
+    .modules-list {
+      margin: 8px 0;
+    }
+
+    .module-item {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      page-break-inside: avoid;
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 9.2pt;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .module-file {
+      font-family: 'Fira Code', monospace;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 8pt;
+    }
+
+    .module-item ul {
+      margin-left: 16px;
+      font-size: 8.8pt;
+      color: #334155;
+    }
+
+    .module-item li {
+      margin-bottom: 5px;
+    }
+
+    /* Code blocks */
+    pre, code {
+      font-family: 'Fira Code', Consolas, Monaco, monospace;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 8.3pt;
+      font-weight: 500;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 8.2pt;
+      overflow-x: auto;
+      margin: 4px 0 8px 0;
+      line-height: 1.4;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* Math Formula Block */
+    .math-block {
+      background: #f8fafc;
+      border-left: 3px solid var(--primary);
+      padding: 6px 12px;
+      margin: 6px 0;
+      border-radius: 0 5px 5px 0;
+      font-size: 9pt;
+    }
+
+    /* BNCC Section Cards */
+    .bncc-axis-title {
+      font-size: 10pt;
+      font-weight: 800;
+      color: #0f172a;
+      background: #f1f5f9;
+      padding: 6px 10px;
+      border-radius: 5px;
+      margin: 14px 0 10px 0;
+      border-left: 4px solid var(--primary);
+      page-break-after: avoid;
+    }
+
+    .bncc-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      page-break-inside: avoid;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .bncc-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .bncc-code-pill {
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      font-size: 8.3pt;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .pill-pc {
+      background: var(--accent-blue-bg);
+      color: var(--accent-blue);
+      border: 1px solid #bfdbfe;
+    }
+
+    .pill-md {
+      background: var(--accent-purple-bg);
+      color: var(--accent-purple);
+      border: 1px solid #e9d5ff;
+    }
+
+    .pill-cd {
+      background: var(--accent-amber-bg);
+      color: var(--accent-amber);
+      border: 1px solid #fde68a;
+    }
+
+    .pill-em {
+      background: #f0fdf4;
+      color: var(--primary);
+      border: 1px solid #bbf7d0;
+    }
+
+    .bncc-skill-name {
+      font-size: 9pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-left: 8px;
+      flex-grow: 1;
+    }
+
+    .bncc-quote {
+      background: #f8fafc;
+      border-left: 3px solid #cbd5e1;
+      padding: 5px 10px;
+      font-family: 'Merriweather', Georgia, serif;
+      font-style: italic;
+      font-size: 8.3pt;
+      color: #334155;
+      margin-bottom: 6px;
+      border-radius: 0 4px 4px 0;
+      line-height: 1.4;
+    }
+
+    .bncc-explanation {
+      font-size: 8.3pt;
+      color: #475569;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .bncc-explanation strong {
+      color: #1e293b;
+    }
+
+    .bncc-applied {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 8.3pt;
+      color: #14532d;
+      line-height: 1.4;
+    }
+
+    .bncc-applied-label {
+      font-weight: 700;
+      color: #007038;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 2px;
+    }
+
+    /* Table Styles */
+    .table-container {
+      margin: 12px 0;
+      page-break-inside: avoid;
+    }
+
+    table.matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.2pt;
+      text-align: left;
+    }
+
+    table.matrix-table th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 7px 8px;
+      font-weight: 700;
+      border: 1px solid #1e293b;
+    }
+
+    table.matrix-table td {
+      padding: 7px 8px;
+      border: 1px solid var(--border-color);
+      vertical-align: top;
+      line-height: 1.35;
+    }
+
+    table.matrix-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    table.matrix-table .bncc-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 7.2pt;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 1px 3px;
+      border-radius: 3px;
+      display: inline-block;
+      margin: 1px;
+      border: 1px solid #bfdbfe;
+    }
+
+    /* Pedagogical Foundation Cards */
+    .pedagogy-flow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0 14px 0;
+      page-break-inside: avoid;
+    }
+
+    .pedagogy-step {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 10px;
+    }
+
+    .pedagogy-step.step-center {
+      border: 2px solid var(--primary);
+      background: #f0fdf4;
+    }
+
+    .pedagogy-step-title {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 3px;
+    }
+
+    .pedagogy-step-desc {
+      font-size: 7.8pt;
+      color: #334155;
+      line-height: 1.35;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .pillar-card {
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 10px 12px;
+      background: #ffffff;
+      page-break-inside: avoid;
+    }
+
+    .pillar-card-title {
+      font-size: 9pt;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .pillar-card-text {
+      font-size: 8.3pt;
+      color: #334155;
+      line-height: 1.4;
+    }
+
+    /* Conclusion Cards */
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .conclusion-item {
+      display: flex;
+      gap: 10px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 7px 7px 0;
+      padding: 10px 12px;
+      page-break-inside: avoid;
+    }
+
+    .conclusion-num {
+      width: 22px;
+      height: 22px;
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 8pt;
+      flex-shrink: 0;
+    }
+
+    .conclusion-content h4 {
+      font-size: 9pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 3px 0;
+    }
+
+    .conclusion-content p {
+      font-size: 8.3pt;
+      color: #334155;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* Footer Signatures Area */
+    .signature-area {
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      page-break-inside: avoid;
+    }
+
+    .signature-box {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .signature-line {
+      width: 75%;
+      border-top: 1px solid #475569;
+      margin-bottom: 5px;
+    }
+
+    .signature-name {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .signature-role {
+      font-size: 7.5pt;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Institutional Header -->
+    <header class="inst-header">
+      <div class="inst-logo-group">
+        <!-- SVG Logo Oficial da Rede Federal / IFSP -->
+        <svg class="inst-logo-svg" viewBox="0 0 32 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Coluna 1 -->
+          <circle cx="5" cy="5" r="4.5" fill="#D32F2F" />
+          <rect x="0.5" y="14" width="9" height="9" rx="2" fill="#007038" />
+          <rect x="0.5" y="27" width="9" height="9" rx="2" fill="#007038" />
+          <!-- Coluna 2 -->
+          <rect x="13.5" y="0.5" width="9" height="9" rx="2" fill="#007038" />
+          <rect x="13.5" y="14" width="9" height="9" rx="2" fill="#007038" />
+          <rect x="13.5" y="27" width="9" height="9" rx="2" fill="#007038" />
+          <!-- Coluna 3 -->
+          <rect x="26.5" y="0.5" width="9" height="9" rx="2" fill="#007038" />
+          <rect x="26.5" y="14" width="9" height="9" rx="2" fill="#007038" />
+          <rect x="26.5" y="27" width="9" height="9" rx="2" fill="#007038" />
+        </svg>
+        <div class="inst-text">
+          <span class="inst-name">Instituto Federal de São Paulo</span>
+          <span class="inst-campus">Câmpus Catanduva</span>
+          <span class="inst-dept">TADS — Superior de Tecnologia em Análise e Desenvolvimento de Sistemas</span>
+        </div>
+      </div>
+      <div class="inst-badge-sem">
+        <div>CTDPEX1 — Projeto de Extensão 1</div>
+        <div style="font-weight: 500; font-size: 7.5pt; color: #475569;">1º Semestre de 2026</div>
+      </div>
+    </header>
+
+    <!-- Document Hero / Title -->
+    <div class="doc-hero">
+      <span class="doc-type-pill">Documento Técnico-Científico & Curricular</span>
+      <h1>Documento Oficial de Análise Técnica & Pedagógica</h1>
+      <p class="subtitle">O Sistema KeyCode e o Complemento da BNCC em Computação: Alinhamento Estrutural, Cognitivo e Didático</p>
+    </div>
+
+    <!-- Metadata Block -->
+    <div class="metadata-grid">
+      <div class="meta-item">
+        <span class="meta-label">Orientador Responsável</span>
+        <span class="meta-value">Prof. Me. Fábio Luiz Viana</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Autores & Desenvolvedores</span>
+        <span class="meta-value">Ryan Cantareli de Aguiar & Pedro Henrique Oliveira Pereira</span>
+      </div>
+      <div class="meta-item full-width">
+        <span class="meta-label">Referência Normativa Principal</span>
+        <span class="meta-value" style="font-size: 8.5pt; font-weight: 500;">Normas sobre Computação na Educação Básica – Complemento à BNCC (Parecer CNE/CP nº 2/2022 e Resolução CNE/CP nº 1/2022)</span>
+      </div>
+      <div class="meta-item full-width">
+        <span class="meta-label">Sistema Extensionista Analisado</span>
+        <span class="meta-value" style="color: var(--primary);">Plataforma Gamificada de Programação Textual KeyCode (Versão Web Standalone / Vanilla JS)</span>
+      </div>
+    </div>
+
+    <!-- 1. Sumário Executivo -->
+    <h2><span class="section-num">1</span> Sumário Executivo e Diagnóstico de Faixa Etária</h2>
+    
+    <p>
+      O projeto <strong>KeyCode</strong> nasceu com a proposta extensionista inicial voltada ao público infantil do 3º ano do Ensino Fundamental (Escola Municipal "Mário Florence"). Contudo, uma análise aprofundada da sua arquitetura, sintaxe textual e exigências cognitivas demonstra que o sistema <strong>ultrapassa amplamente os limites dos anos iniciais</strong> e encontra seu <strong>ponto de máxima aderência curricular ("Sweet Spot") entre o 6º e o 9º ano do Ensino Fundamental (11 a 15 anos)</strong>, além de servir como ferramenta primorosa de nivelamento no <strong>Ensino Médio e Técnico</strong>.
+    </p>
+
+    <!-- Cognitive Maturity Cards -->
+    <div class="maturity-grid">
+      <div class="maturity-card warning">
+        <span class="maturity-title">1º ao 3º Ano (6 a 8 anos)</span>
+        <span class="maturity-badge">⚠️ Uso Assistido</span>
+        <p class="maturity-desc">
+          Alta dependência motora e cognitiva para localização de símbolos, parênteses e digitação precisa. Requer mediação docente constante.
+        </p>
+      </div>
+
+      <div class="maturity-card transition">
+        <span class="maturity-title">4º e 5º Ano (9 a 10 anos)</span>
+        <span class="maturity-badge">🟢 Transição Ideal</span>
+        <p class="maturity-desc">
+          Domínio pleno do teclado; consolidação de matrizes de coordenadas cartesianas $(X, Y)$ e evolução no raciocínio de descentração espacial.
+        </p>
+      </div>
+
+      <div class="maturity-card sweet-spot">
+        <span class="maturity-title">6º ao 9º Ano (11 a 15 anos)</span>
+        <span class="maturity-badge">🌟 Sweet Spot (Ápice)</span>
+        <p class="maturity-desc">
+          Sintaxe textual formal rigorosa; abstração de parametrização e funções; ciclo autônomo e reflexivo de depuração investigativa de erros.
+        </p>
+      </div>
+    </div>
+
+    <h3>Por que o sistema se destaca a partir do 5º/6º ano?</h3>
+    <ul class="highlight-list">
+      <li>
+        <strong>Superação da Barreira dos Blocos (Arrastar e Soltar):</strong> O documento da BNCC prevê expressamente que, a partir do 6º ano (<code>EF06CO02</code>), os alunos migrem de atividades puramente desplugadas ou de blocos visuais para <strong>linguagens de programação formais com comandos textuais precisos</strong>.
+      </li>
+      <li>
+        <strong>Descentração Espacial e Geometria Relativa:</strong> A navegação do robô exige rotações relativas ao próprio agente (<code>virarDireita()</code> toma como base a frente do robô, e não os olhos do jogador na tela). Essa habilidade de descentração atinge seu amadurecimento pleno conforme o estágio operatório formal (Piaget), consolidado dos 10 aos 12 anos.
+      </li>
+      <li>
+        <strong>Parametrização Algorítmica:</strong> O comando <code>mover(n)</code> materializa o conceito de parâmetro e generalização de repetições, trabalhado expressamente nas habilidades de 6º ano (<code>EF06CO06</code>).
+      </li>
+      <li>
+        <strong>Ciclo Reflexivo de Depuração (<em>Debugging</em>):</strong> A análise minuciosa de falhas (colisão com paredes, rotas incompletas) estimula o pensamento crítico e a depuração autônoma preconizados no 7º ano (<code>EF07CO02</code>).
+      </li>
+    </ul>
+
+    <!-- 2. Engenharia e Funcionamento Detalhado do Sistema -->
+    <h2><span class="section-num">2</span> Engenharia e Funcionamento Detalhado do Sistema</h2>
+
+    <p>
+      O KeyCode foi projetado com arquitetura modular em <strong>Vanilla JavaScript (ES Modules)</strong>, sem sobrecarga de frameworks ou transpiladores, garantindo execução extremamente leve e fluida em computadores de laboratórios de escolas públicas:
+    </p>
+
+    <!-- Mermaid Architecture Diagram -->
+    <div class="diagram-container">
+      <div class="mermaid">
+flowchart TD
+    subgraph UI ["Interface & Interação (index.html / ui.js / style.css)"]
+        UserCode["Editor de Texto<br>(textarea #code-editor)"]
+        RunBtn["Botão ▶ Executar"]
+        ResetBtn["Botão ↻ Limpar"]
+        HintBtn["Botão 💡 Dica (Scaffolding)"]
+        TeacherSelect["Seletor de Níveis (Bypass Docente)"]
+        Modais["Modais Responsivos<br>(Sucesso, Erro, Colisão)"]
+    end
+
+    subgraph Engine ["Motor de Execução (engine.js)"]
+        Parser["Parser Sintático (Regex)<br>/(\\w+)\\s*\\(\\s*(\\d*)\\s*\\)/"]
+        Queue["Fila de Instruções Atômicas<br>(['move', 'move', 'left', 'shoot'])"]
+        Stepper["Temporizador Sequencial<br>(setTimeout a 400ms por ciclo)"]
+        StateCtrl["Gerenciador de Estado<br>robotState: {x, y, dir}<br>activeEnemies: [{x, y}]"]
+        Collider["Detector de Colisão & Limites<br>(walls, activeEnemies, bordas)"]
+    end
+
+    subgraph Data ["Configuração de Desafios (levels.js)"]
+        L1["Nível 1: Sequenciamento Puro"]
+        L2["Nível 2: Desvio de Paredes"]
+        L3["Nível 3: Labirinto Complexo"]
+        L4["Nível 4: Tomada de Decisão"]
+        L5["Nível 5: Síntese e Combate"]
+    end
+
+    subgraph Visual ["Palco Gráfico Bidimensional (DOM Grid)"]
+        Matrix["Grade Cartesiana 5x5<br>Cálculo de Célula: y * 5 + x"]
+        RobotSprite["Sprite do Robô SVG<br>(Transform: rotate(dir * 90deg))"]
+        TargetSprite["Estrela Dourada SVG"]
+    end
+
+    UserCode --> RunBtn
+    RunBtn --> Parser
+    TeacherSelect --> StateCtrl
+    L1 & L2 & L3 & L4 & L5 --> StateCtrl
+    Parser --> Queue
+    Queue --> Stepper
+    Stepper --> StateCtrl
+    StateCtrl --> Collider
+    Collider -->|Livre| Matrix
+    Collider -->|Obstáculo| Modais
+    Matrix --> RobotSprite & TargetSprite
+    StateCtrl -->|Meta Atingida| Modais
+    HintBtn --> Modais
+      </div>
+      <div class="diagram-caption">Figura 1 — Arquitetura de Fluxo de Dados e Execução Reativa do KeyCode</div>
+    </div>
+
+    <h3>Principais Módulos do Sistema:</h3>
+
+    <div class="modules-list">
+      <div class="module-item">
+        <div class="module-header">
+          <span>Estrutura & Interface</span>
+          <span class="module-file">index.html</span>
+        </div>
+        <p style="font-size: 8.5pt; color: #475569; margin-bottom: 0;">
+          Organização em <em>Split-Screen</em> (Painel de Código à esquerda e Tabuleiro Gráfico à direita), permitindo simultaneidade cognitiva entre a elaboração mental do algoritmo e a observação empírica do fenômeno simulado no grid.
+        </p>
+      </div>
+
+      <div class="module-item">
+        <div class="module-header">
+          <span>Motor de Execução Central</span>
+          <span class="module-file">js/engine.js</span>
+        </div>
+        <ul>
+          <li>
+            <strong>Parser Léxico/Sintático:</strong> Normaliza o código (<code>toLowerCase()</code>) e extrai os tokens e argumentos via Expressão Regular:
+            <pre><code>const commandRegex = /(\\w+)\\s*\\(\\s*(\\d*)\\s*\\)/;</code></pre>
+          </li>
+          <li>
+            <strong>Desdobramento de Iterações:</strong> Ao receber <code>mover(4)</code>, a engine desdobra a instrução em quatro microações <code>'move'</code> sequenciais, ensinando o princípio algorítmico da repetição com contagem definida.
+          </li>
+          <li>
+            <strong>Orientação Angular Modular ($\mathbb{Z}_4$):</strong> Gerencia a orientação do robô no plano através de aritmética modular no anel cíclico $\mathbb{Z}_4$:
+            <div class="math-block">
+              $$\\text{virarDireita} \\implies \\text{dir} = (\\text{dir} + 1) \\pmod 4$$
+              $$\\text{virarEsquerda} \\implies \\text{dir} = (\\text{dir} + 3) \\pmod 4$$
+            </div>
+            O ângulo em graus é atualizado no elemento visual via CSS: <code>robotElement.style.transform = \`rotate(\${robotState.dir * 90}deg)\`</code>.
+          </li>
+          <li>
+            <strong>Loop de Execução e Temporalidade:</strong> Cada instrução é disparada sequencialmente a cada 400ms. Esse intervalo é didaticamente calibrado para viabilizar o rastreamento visual e cognitivo passo a passo do algoritmo em ação.
+          </li>
+          <li>
+            <strong>Mecânica de Ação no Meio:</strong> O comando <code>atirarNaFrente()</code> projeta um vetor ortogonal de alcance 1; se houver um inimigo na coordenada adjacente imediata, remove o objeto da lista de ameaças ativas.
+          </li>
+        </ul>
+      </div>
+
+      <div class="module-item">
+        <div class="module-header">
+          <span>Base de Conhecimento e Fases</span>
+          <span class="module-file">js/levels.js</span>
+        </div>
+        <p style="font-size: 8.5pt; color: #475569; margin-bottom: 0;">
+          Armazena a matriz de estados de cada fase com dimensão de grade, coordenada inicial do robô, vetor do objetivo, obstáculos estáticos (<code>walls</code>), entidades dinâmicas (<code>enemies</code>) e dicas contextuais de suporte pedagógico (<em>scaffolding</em>).
+        </p>
+      </div>
+
+      <div class="module-item">
+        <div class="module-header">
+          <span>Ciclo de Eventos & Interface com o Usuário</span>
+          <span class="module-file">js/ui.js & js/main.js</span>
+        </div>
+        <p style="font-size: 8.5pt; color: #475569; margin-bottom: 0;">
+          Gerenciam o ciclo de vida dos eventos de tela, controle de execução, animações de feedback, bloqueio de botões durante a marcha e exibição de modais pedagógicos explicativos.
+        </p>
+      </div>
+    </div>
+
+    <!-- 3. Mapeamento Exaustivo na BNCC Computação -->
+    <h2><span class="section-num">3</span> Mapeamento Exaustivo na BNCC Computação</h2>
+
+    <p>
+      O documento normativo oficial do MEC/CNE divide a Computação na Educação Básica em três grandes eixos: <strong>Pensamento Computacional</strong>, <strong>Mundo Digital</strong> e <strong>Cultura Digital</strong>. A seguir, detalha-se cada habilidade contemplada pelo KeyCode com o texto oficial da norma, sua fundamentação didática e a correspondência exata no sistema.
+    </p>
+
+    <div class="bncc-axis-title">3.1. Eixo: PENSAMENTO COMPUTACIONAL (PC) — Anos Finais (6º ao 9º Ano)</div>
+
+    <!-- EF06CO02 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF06CO02</span>
+        <span class="bncc-skill-name">Elaboração de Algoritmos em Linguagem de Programação</span>
+      </div>
+      <div class="bncc-quote">
+        "Elaborar algoritmos que envolvam instruções sequenciais, de repetição e de seleção usando uma linguagem de programação."
+      </div>
+      <div class="bncc-explanation">
+        <strong>Explicação do Documento da BNCC (pág. 43):</strong> Existem diferentes linguagens de programação que podem ser usadas para descrever algoritmos em diferentes níveis de abstração. O aluno precisa compreender que o programa é uma descrição formal de um algoritmo em uma linguagem interpretável.
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Como o KeyCode atende no código:</div>
+        O KeyCode utiliza uma linguagem textual interpretada no arquivo <code>engine.js</code>. O estudante não arrasta caixas; ele digita as instruções sequenciais no editor (ex: <code>mover(2)</code>, <code>virarDireita()</code>, <code>mover(3)</code>). Ao clicar em executar, o interpretador traduz os comandos textuais em rotinas lógicas reais.
+      </div>
+    </div>
+
+    <!-- EF06CO03 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF06CO03</span>
+        <span class="bncc-skill-name">Precisão na Resolução e Construção de Programas</span>
+      </div>
+      <div class="bncc-quote">
+        "Descrever com precisão a solução de um problema, construindo o programa que implementa a solução descrita."
+      </div>
+      <div class="bncc-explanation">
+        <strong>Explicação do Documento da BNCC (pág. 43):</strong> O aluno deve expressar a solução do problema com rigor sintático e lógico, compreendendo que qualquer imprecisão ou ambiguidade inviabiliza a execução correta pela máquina.
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Como o KeyCode atende no código:</div>
+        O parser do KeyCode exige estrita precisão: erros como digitar <code>mover 4</code> (sem parênteses) ou grafar incorretamente o identificador da instrução impedem o robô de agir. A criança compreende que o computador é determinístico e exige comunicação sem ambiguidades.
+      </div>
+    </div>
+
+    <!-- EF06CO04 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF06CO04</span>
+        <span class="bncc-skill-name">Decomposição Automatizada em Programação</span>
+      </div>
+      <div class="bncc-quote">
+        "Construir soluções de problemas usando a técnica de decomposição e automatizar tais soluções usando uma linguagem de programação."
+      </div>
+      <div class="bncc-explanation">
+        <strong>Explicação do Documento da BNCC (pág. 43):</strong> Decomposição é dividir um problema em partes menores, resolvê-las independentemente e combiná-las para solucionar o todo.
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Como o KeyCode atende no código:</div>
+        No <strong>Nível 3 (O Labirinto)</strong> e no <strong>Nível 5 (Inimigo à Frente)</strong>, a travessia não pode ser resolvida de uma só vez. O estudante precisa decompor o desafio em: (1) alcançar a primeira curva; (2) reorientar o robô; (3) contornar a parede interna; (4) disparar contra o inimigo; e (5) avançar até a estrela. Cada subsolução é uma linha de código articulada no script final.
+      </div>
+    </div>
+
+    <!-- EF06CO06 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF06CO06</span>
+        <span class="bncc-skill-name">Uso de Parâmetros e Variáveis para Generalização</span>
+      </div>
+      <div class="bncc-quote">
+        "Comparar diferentes casos particulares (instâncias) de um mesmo problema (...) e criar um algoritmo para resolver todos, fazendo uso de variáveis (parâmetros) para permitir o tratamento de todos os casos de forma genérica."
+      </div>
+      <div class="bncc-explanation">
+        <strong>Explicação do Documento da BNCC (pág. 43):</strong> Para descrever um algoritmo de forma genérica, é fundamental atribuir parâmetros às instruções, permitindo que a mesma rotina execute magnitudes de tarefas diferentes.
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Como o KeyCode atende no código:</div>
+        As instruções <code>mover(n)</code> e <code>virarDireita(n)</code> implementam a passagem direta de argumentos para a função: <code>mover(1)</code> desloca uma casa; <code>mover(4)</code> reutiliza a rotina de deslocamento por quatro iterações. Isso ensina concretamente a distinção entre a função (ação) e seu parâmetro (argumento de entrada).
+      </div>
+    </div>
+
+    <!-- EF07CO02 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF07CO02</span>
+        <span class="bncc-skill-name">Análise e Depuração de Programas (Debugging)</span>
+      </div>
+      <div class="bncc-quote">
+        "Analisar programas para detectar e remover erros, ampliando a confiança na sua correção."
+      </div>
+      <div class="bncc-explanation">
+        <strong>Explicação do Documento da BNCC (pág. 47):</strong> "Deve-se estimular a análise crítica do programa construído. Uma das formas é através da depuração, que consiste em uma análise detalhada do código e realização de testes para identificar erros. Depuração é uma das formas de desenvolver a habilidade do pensamento crítico."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Como o KeyCode atende no código:</div>
+        Implementado no fluxo de validação de colisão do <code>engine.js</code> e nos modais do <code>ui.js</code>. Se o aluno calcula um passo a mais e o robô atinge uma barreira, a engine interrompe o movimento, congela a tela e abre o modal explicativo: <em>"🧱 Cuidado! Você bateu em um obstáculo!"</em>. O aluno é conduzido a reler seu código, rastrear a linha onde ocorreu o excesso de passos e testar novamente até atingir a correção.
+      </div>
+    </div>
+
+    <!-- EF09CO03 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF09CO03</span>
+        <span class="bncc-skill-name">Autômatos e Linguagens Orientadas a Eventos</span>
+      </div>
+      <div class="bncc-quote">
+        "Usar autômatos para descrever comportamentos de forma abstrata automatizando-os através de uma linguagem de programação baseada em eventos."
+      </div>
+      <div class="bncc-explanation">
+        <strong>Explicação do Documento da BNCC (pág. 57):</strong> Modelar estados do sistema e as transições possíveis a partir da ocorrência de eventos (cliques, temporizadores, sinais de colisão).
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Como o KeyCode atende no código:</div>
+        O robô do KeyCode é um autômato de estados finitos modelado com os estados discretos de direção ($0$: Norte, $1$: Leste, $2$: Sul, $3$: Oeste). A transição de estado ocorre orientada a eventos disparados pelo temporizador da fila de comandos e pela escuta de botões no <code>main.js</code>.
+      </div>
+    </div>
+
+    <div class="bncc-axis-title">3.1. Eixo: PENSAMENTO COMPUTACIONAL (PC) — Anos Iniciais (1º ao 5º Ano)</div>
+
+    <!-- EF01CO02 / EF01CO03 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF01CO02 & EF01CO03</span>
+        <span class="bncc-skill-name">Sequências e Conceituação de Algoritmos</span>
+      </div>
+      <div class="bncc-quote">
+        "Identificar e seguir sequências de passos aplicados no dia a dia para resolver problemas" e "Reorganizar e criar sequências de passos em meios físicos ou digitais, relacionando essas sequências à palavra 'Algoritmos'."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        O Nível 1 introduz o estudante à necessidade de uma sequência cronológica estrita para atingir um propósito objetivo no meio digital.
+      </div>
+    </div>
+
+    <!-- EF02CO02 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF02CO02</span>
+        <span class="bncc-skill-name">Repetições Simples (Iterações Definidas)</span>
+      </div>
+      <div class="bncc-quote">
+        "Criar e simular algoritmos (...) construídos como sequências com repetições simples (iterações definidas) com base em instruções preestabelecidas (...), analisando como a precisão da instrução impacta na execução do algoritmo."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        O uso da sintaxe com contagem definida (<code>mover(4)</code>) demonstra que uma única linha de comando parametrizada expressa repetições idênticas sem redundância de código.
+      </div>
+    </div>
+
+    <!-- EF03CO01 / EF03CO02 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF03CO01 & EF03CO02</span>
+        <span class="bncc-skill-name">Lógica Computacional e Tomada de Decisão</span>
+      </div>
+      <div class="bncc-quote">
+        "Associar os valores 'verdadeiro' e 'falso' a sentenças lógicas..." e "Criar e simular algoritmos (...) com condição para resolver problemas..."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        No Nível 4 ("Atirar ou desviar?"), o aluno avalia a condição: se a linha reta contém uma ameaça, ele pode optar por destruir o obstáculo com <code>atirarNaFrente()</code> ou tomar uma rota ortogonal de desvio.
+      </div>
+    </div>
+
+    <!-- EF04CO01 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF04CO01</span>
+        <span class="bncc-skill-name">Organização Espacial em Matrizes e Coordenadas</span>
+      </div>
+      <div class="bncc-quote">
+        "Reconhecer objetos do mundo real e/ou digital que podem ser representados através de matrizes que estabelecem uma organização na qual cada componente está em uma posição definida por coordenadas..."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        A grade é gerada dinamicamente via CSS Grid no <code>engine.js</code>. Cada célula corresponde exatamente a um par ordenado $(X, Y)$ no plano cartesiano bidimensional, consolidando a relação entre álgebra, geometria e indexação computacional.
+      </div>
+    </div>
+
+    <!-- EF15CO02 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-pc">EF15CO02</span>
+        <span class="bncc-skill-name">Construção de Algoritmos no Ciclo 1º ao 5º Ano</span>
+      </div>
+      <div class="bncc-quote">
+        "Construir e simular algoritmos, de forma independente ou em colaboração, que resolvam problemas simples e do cotidiano com uso de sequências, seleções condicionais e repetições de instruções."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        Constitui o próprio núcleo de jogabilidade da ferramenta em todos os seus 5 níveis progressivos.
+      </div>
+    </div>
+
+    <!-- 3.2. Eixo Mundo Digital -->
+    <div class="bncc-axis-title">3.2. Eixo: MUNDO DIGITAL (MD)</div>
+
+    <!-- EF02CO03 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-md">EF02CO03</span>
+        <span class="bncc-skill-name">Conjunto de Instruções de Máquina</span>
+      </div>
+      <div class="bncc-quote">
+        "Identificar que máquinas diferentes executam conjuntos próprios de instruções e que podem ser usadas para definir algoritmos."
+      </div>
+      <div class="bncc-explanation">
+        <strong>Explicação do Documento da BNCC (pág. 21):</strong> Compreender que o computador não interpreta livremente o pensamento humano; ele disponibiliza um conjunto restrito de operações básicas primitivas.
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        O aluno aprende que o robô não aceita comandos livres como "vá para frente", mas responde estritamente ao seu vocabulário operacional fechado: <code>mover</code>, <code>virarDireita</code>, <code>virarEsquerda</code> e <code>atirarNaFrente</code>.
+      </div>
+    </div>
+
+    <!-- EF02CO04 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-md">EF02CO04</span>
+        <span class="bncc-skill-name">Hardware versus Software</span>
+      </div>
+      <div class="bncc-quote">
+        "Diferenciar componentes físicos (hardware) e programas que fornecem as instruções (software) para o hardware."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        A interface separa nitidamente o <strong>agente atuador</strong> (o robô no grid) e o <strong>programa de controle</strong> (o texto digitado no editor). O estudante constata que o robô permanece estático até que um software forneça instruções de execução.
+      </div>
+    </div>
+
+    <!-- EF03CO06 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-md">EF03CO06</span>
+        <span class="bncc-skill-name">Interfaces Físicas de Entrada e Saída (I/O)</span>
+      </div>
+      <div class="bncc-quote">
+        "Reconhecer que, para um computador realizar tarefas, ele se comunica com o mundo exterior com o uso de interfaces físicas (dispositivos de entrada e saída)."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        A dinâmica prática do jogo reforça o fluxo contínuo de entrada (digitação no teclado e cliques de mouse) processada pelo navegador e exibida nos dispositivos de saída (monitor, com renderização de estados visuais reativos).
+      </div>
+    </div>
+
+    <!-- 3.3. Cultura Digital & 3.4. Ensino Médio -->
+    <div class="bncc-axis-title">3.3. Eixo: CULTURA DIGITAL (CD) & Ensino Médio</div>
+
+    <!-- EF03CO08 / EF15CO08 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-cd">EF03CO08 & EF15CO08</span>
+        <span class="bncc-skill-name">Uso de Ferramentas Computacionais Didáticas</span>
+      </div>
+      <div class="bncc-quote">
+        "Usar ferramentas computacionais em situações didáticas para se expressar em diferentes formatos digitais" e "Reconhecer e utilizar tecnologias computacionais para (...) resolver problemas."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        Transforma o laboratório de informática escolar de um espaço de mero consumo passivo (navegação na web ou exibição de vídeos) em uma <strong>oficina de autoria e criação ativa de soluções</strong>.
+      </div>
+    </div>
+
+    <!-- EF05CO10 / EF06CO10 -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-cd">EF05CO10 & EF06CO10</span>
+        <span class="bncc-skill-name">Tecnologia, Trabalho e Autonomia</span>
+      </div>
+      <div class="bncc-quote">
+        "Expressar-se crítica e criativamente na compreensão das mudanças tecnológicas no mundo do trabalho..."
+      </div>
+      <div class="bncc-applied">
+        <div class="bncc-applied-label">🎯 Aplicação no KeyCode:</div>
+        Aproxima os jovens da realidade profissional do mercado de software, desmistificando a profissão de desenvolvedor através de uma ferramenta de codificação real com sintaxe autêntica.
+      </div>
+    </div>
+
+    <!-- Competências do Ensino Médio -->
+    <div class="bncc-card">
+      <div class="bncc-card-header">
+        <span class="bncc-code-pill pill-em">EM13CO02, EM13CO06 & EM13CO15</span>
+        <span class="bncc-skill-name">Engenharia de Software e Avaliação de Usabilidade</span>
+      </div>
+      <div class="bncc-explanation">
+        No Ensino Médio e Técnico, o KeyCode se alinha aos objetivos de:
+        <ul style="margin: 4px 0 4px 16px;">
+          <li><strong>(EM13CO02):</strong> Refinamento vertical e horizontal de software a partir de protótipos evolutivos.</li>
+          <li><strong>(EM13CO06) e (EM13CO15):</strong> Avaliação de software com base em métricas de usabilidade, eficiência e experiência do usuário (UX), princípios seguidos no design acessível e no baixo consumo de memória do KeyCode.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 4. Matriz Curricular Consolidada dos Níveis do KeyCode -->
+    <h2><span class="section-num">4</span> Matriz Curricular Consolidada dos Níveis do KeyCode</h2>
+
+    <p>
+      A tabela abaixo correlaciona de forma analítica cada uma das fases do jogo com a sua configuração espacial, vocabulário mobilizado, conceitos teóricos em foco e os códigos oficiais correspondentes na BNCC:
+    </p>
+
+    <div class="table-container">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th style="width: 17%;">Nível / Desafio</th>
+            <th style="width: 25%;">Configuração & Obstáculos</th>
+            <th style="width: 18%;">Comandos Mobilizados</th>
+            <th style="width: 25%;">Foco Conceitual</th>
+            <th style="width: 15%;">Código BNCC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nível 1:</strong><br>Primeiros Passos</td>
+            <td>Grid 5x5 livre. Distância linear de 4 casas em linha reta.</td>
+            <td><code>mover(4)</code> ou<br><code>mover()</code> x4</td>
+            <td>Sequenciamento linear e parâmetro de repetição definida.</td>
+            <td>
+              <span class="bncc-tag">EF01CO02</span>
+              <span class="bncc-tag">EF02CO02</span>
+              <span class="bncc-tag">EF06CO06</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Nível 2:</strong><br>Cuidado com as Paredes</td>
+            <td>Paredes ortogonais bloqueando linha reta em $(2,4)$, $(2,3)$, $(2,2)$.</td>
+            <td><code>mover(n)</code><br><code>virarDireita()</code><br><code>virarEsquerda()</code></td>
+            <td>Geometria plana, rotação relativa em anel cíclico $\\mathbb{Z}_4$ e quebra de linearidade.</td>
+            <td>
+              <span class="bncc-tag">EF03CO03</span>
+              <span class="bncc-tag">EF04CO01</span>
+              <span class="bncc-tag">EF06CO02</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Nível 3:</strong><br>O Labirinto</td>
+            <td>Corredor sinuoso com 8 blocos de parede em zigue-zague.</td>
+            <td>Encadeamento múltiplo de giros e avanços parametrizados.</td>
+            <td>Decomposição algorítmica de trajeto e rastreamento espacial complexo.</td>
+            <td>
+              <span class="bncc-tag">EF03CO03</span>
+              <span class="bncc-tag">EF06CO04</span>
+              <span class="bncc-tag">EF07CO02</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Nível 4:</strong><br>Atirar ou Desviar?</td>
+            <td>Inimigo bloqueando rota rápida em $(2,2)$ com paredes laterais.</td>
+            <td><code>atirarNaFrente()</code><br><code>mover(n)</code><br>giros angulares</td>
+            <td>Tomada de decisão, caminhos alternativos e manipulação de estado do meio.</td>
+            <td>
+              <span class="bncc-tag">EF03CO01</span>
+              <span class="bncc-tag">EF05CO04</span>
+              <span class="bncc-tag">EF06CO02</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Nível 5:</strong><br>Inimigo à Frente!</td>
+            <td>Dois inimigos e 8 paredes formando barreiras táticas combinadas.</td>
+            <td>Síntese de todos os comandos da linguagem textual.</td>
+            <td>Integração global de competências, autômato de estados e depuração crítica.</td>
+            <td>
+              <span class="bncc-tag">EF06CO03</span>
+              <span class="bncc-tag">EF07CO02</span>
+              <span class="bncc-tag">EF09CO03</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 5. Fundamentação Pedagógica e Psicológica -->
+    <h2><span class="section-num">5</span> Fundamentação Pedagógica e Psicológica</h2>
+
+    <p>
+      O design do KeyCode não se apoia apenas em diretrizes normativas de currículo, mas ancora-se solidamente nas três principais teorias contemporâneas da aprendizagem cognitiva:
+    </p>
+
+    <!-- ZPD Visual Representation -->
+    <div class="pedagogy-flow">
+      <div class="pedagogy-step">
+        <span class="pedagogy-step-title">1. Nível de Desenv. Real</span>
+        <p class="pedagogy-step-desc">
+          O estudante já compreende sequências temporais e digitação básica elementar no teclado.
+        </p>
+      </div>
+
+      <div class="pedagogy-step step-center">
+        <span class="pedagogy-step-title" style="color: var(--primary);">2. Zona Proximal (Andaime / Scaffolding)</span>
+        <p class="pedagogy-step-desc">
+          O KeyCode atua como andaime cognitivo: botão "💡 Dica", mensagens pedagógicas de colisão e congelamento visual sem punição.
+        </p>
+      </div>
+
+      <div class="pedagogy-step">
+        <span class="pedagogy-step-title">3. Nível de Desenv. Potencial</span>
+        <p class="pedagogy-step-desc">
+          O aluno programa rotinas complexas, supera labirintos sinuosos e depura seus próprios algoritmos com plena autonomia.
+        </p>
+      </div>
+    </div>
+
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-card-title">
+          <span>🧠 Construcionismo (Seymour Papert)</span>
+        </div>
+        <p class="pillar-card-text">
+          O robô digital do KeyCode materializa o conceito de "objeto para pensar com". Ao ver o robô bater em uma parede, o erro deixa de ser uma falha punitiva ou constrangedora e converte-se em <strong>evidência empírica objetiva</strong> a ser investigada cientificamente pelo estudante.
+        </p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-card-title">
+          <span>🪜 Zona de Desenvolvimento Proximal e Andaime (Lev Vygotsky)</span>
+        </div>
+        <p class="pillar-card-text">
+          O sistema fornece suporte calibrado de forma a manter o aprendiz na faixa ótima de desafio: modais explicativos sobre colisões em vez de travamentos silenciosos, e um botão de dica contextual que direciona o raciocínio sem entregar a resposta formulada.
+        </p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-card-title">
+          <span>📊 Taxonomia de Bloom Revisada</span>
+        </div>
+        <p class="pillar-card-text">
+          A progressão do KeyCode conduz o aprendiz desde o nível de <em>Lembrar/Entender</em> a sintaxe dos comandos primitivos até a <em>Aplicação</em> em rotas lineares, a <em>Análise</em> de bifurcações e desvios e, finalmente, a <em>Criação e Avaliação</em> de algoritmos completos de depuração.
+        </p>
+      </div>
+    </div>
+
+    <!-- 6. Conclusão e Recomendações Extensionistas -->
+    <h2><span class="section-num">6</span> Conclusão e Recomendações Extensionistas</h2>
+
+    <div class="conclusion-grid">
+      <div class="conclusion-item">
+        <div class="conclusion-num">1</div>
+        <div class="conclusion-content">
+          <h4>Adequação Curricular e Foco de Faixa Etária</h4>
+          <p>
+            Embora o KeyCode possa ser utilizado pontualmente no 3º ano sob forte mediação docente, a sua <strong>excelência pedagógica plena ocorre nas turmas de 5º ao 8º ano (10 a 14 anos)</strong>, onde a fluência de digitação e a capacidade de abstração textual maximizam o rendimento dos estudantes.
+          </p>
+        </div>
+      </div>
+
+      <div class="conclusion-item">
+        <div class="conclusion-num">2</div>
+        <div class="conclusion-content">
+          <h4>Relevância e Viabilidade Técnica na Escola Pública</h4>
+          <p>
+            A ausência total de dependências pesadas, servidores remotos ou bibliotecas complexas permite a execução instantânea e offline em computadores modestos de laboratórios de informática municipais e estaduais, eliminando barreiras de conectividade.
+          </p>
+        </div>
+      </div>
+
+      <div class="conclusion-item">
+        <div class="conclusion-num">3</div>
+        <div class="conclusion-content">
+          <h4>Cumprimento Integral do Complemento à BNCC</h4>
+          <p>
+            O sistema cobre de ponta a ponta os três eixos da BNCC Computação (Pensamento Computacional, Mundo Digital e Cultura Digital), constituindo um modelo exemplar de integração entre a universidade pública (IFSP Catanduva) e a comunidade da educação básica.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signatures -->
+    <div class="signature-area">
+      <div class="signature-box">
+        <div class="signature-line"></div>
+        <span class="signature-name">Prof. Me. Fábio Luiz Viana</span>
+        <span class="signature-role">Orientador — IFSP Câmpus Catanduva</span>
+      </div>
+      <div class="signature-box">
+        <div class="signature-line"></div>
+        <span class="signature-name">Ryan Cantareli & Pedro H. O. Pereira</span>
+        <span class="signature-role">Autores / Desenvolvedores — TADS</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Initialize KaTeX
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+
+      // Initialize Mermaid
+      if (typeof mermaid !== 'undefined') {
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'neutral',
+          flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+            curve: 'basis'
+          },
+          fontFamily: 'Inter, system-ui, sans-serif'
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+`;
+
+const htmlFilePath = path.join(__dirname, 'ANALISE_SISTEMA_E_BNCC_KEYCODE.html');
+const pdfFilePath = path.join(__dirname, 'ANALISE_SISTEMA_E_BNCC_KEYCODE.pdf');
+
+fs.writeFileSync(htmlFilePath, htmlContent, 'utf8');
+console.log('HTML gerado com sucesso em:', htmlFilePath);
+
+const edgePath = 'C:\\\\Program Files (x86)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe';
+const fileUri = 'file:///' + htmlFilePath.replace(/\\\\/g, '/');
+
+console.log('Gerando PDF com Microsoft Edge Headless (sem headers padrão do navegador)...');
+const edgeCmd = '"' + edgePath + '" --headless --disable-gpu --run-all-compositor-stages-before-draw --no-pdf-header-footer --virtual-time-budget=6000 --print-to-pdf="' + pdfFilePath + '" "' + fileUri + '"';
+
+try {
+  execSync(edgeCmd, { stdio: 'inherit' });
+  if (fs.existsSync(pdfFilePath)) {
+    const stats = fs.statSync(pdfFilePath);
+    console.log('PDF criado com sucesso! Tamanho: ' + stats.size + ' bytes');
+  } else {
+    console.error('Erro: O arquivo PDF não foi localizado após o comando.');
+  }
+} catch (err) {
+  console.error('Erro ao executar o Edge:', err);
+}
