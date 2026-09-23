@@ -15,82 +15,78 @@
         
         <!-- Cabeçalho da página & HUD Gamer Gamificado -->
         <header class="app-header">
-            <div class="header-top-row">
-                <div class="brand">
-                    <div class="brand-logo" title="KeyCode">
-                        <svg class="kc-icon kc-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="kcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#2dd4bf" />
-                                    <stop offset="100%" stop-color="#38bdf8" />
-                                </linearGradient>
-                            </defs>
-                            <rect x="3" y="3" width="26" height="26" rx="8" fill="#0f172a" stroke="url(#kcGrad)" stroke-width="2"/>
-                            <path d="M10 11L6.5 16L10 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M22 11L25.5 16L22 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M16 8C14.5 10.5 13.5 13.5 13.5 17L16 19L18.5 17C18.5 13.5 17.5 10.5 16 8Z" fill="url(#kcGrad)"/>
-                            <circle cx="16" cy="13.5" r="1.25" fill="#0f172a"/>
-                            <path d="M14 20L13 23M18 20L19 23M16 19V24" stroke="#38bdf8" stroke-width="1.75" stroke-linecap="round"/>
-                        </svg>
-                    </div>
-                    <h1>KeyCode</h1>
-                    <span id="level-concept" class="concept-badge">Instruções Sequenciais</span>
+            <div class="brand">
+                <div class="brand-logo" title="KeyCode">
+                    <svg class="kc-icon kc-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="kcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#2dd4bf" />
+                                <stop offset="100%" stop-color="#38bdf8" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="3" y="3" width="26" height="26" rx="8" fill="#0f172a" stroke="url(#kcGrad)" stroke-width="2"/>
+                        <path d="M10 11L6.5 16L10 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 11L25.5 16L22 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 8C14.5 10.5 13.5 13.5 13.5 17L16 19L18.5 17C18.5 13.5 17.5 10.5 16 8Z" fill="url(#kcGrad)"/>
+                        <circle cx="16" cy="13.5" r="1.25" fill="#0f172a"/>
+                        <path d="M14 20L13 23M18 20L19 23M16 19V24" stroke="#38bdf8" stroke-width="1.75" stroke-linecap="round"/>
+                    </svg>
                 </div>
-
-                <!-- HUD Gamer: Estrelas, Placar, Som e Reiniciar -->
-                <div class="hud-panel">
-                    <div class="hud-pill" title="Total de estrelas conquistadas em todos os níveis">
-                        <span class="hud-pill-icon kc-star-gold">
-                            <svg class="kc-icon kc-star" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"/>
-                            </svg>
-                        </span>
-                        <span id="total-stars-display">0 / 15</span>
-                    </div>
-                    <div class="hud-pill" title="Pontuação acumulada">
-                        <span class="hud-pill-icon kc-trophy-gold">
-                            <svg class="kc-icon kc-trophy" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 3H18V9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9V3Z" fill="#f59e0b" stroke="#fbbf24" stroke-width="1.5"/>
-                                <path d="M6 5H3C2.44772 5 2 5.44772 2 6V8C2 9.65685 3.34315 11 5 11H6.3" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M18 5H21C21.5523 5 22 5.44772 22 6V8C22 9.65685 20.6569 11 19 11H17.7" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M12 15V18M8 21H16M9 18H15" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M12 7L12.7 8.5L14.3 8.7L13.1 9.8L13.4 11.4L12 10.6L10.6 11.4L10.9 9.8L9.7 8.7L11.3 8.5L12 7Z" fill="#ffffff"/>
-                            </svg>
-                        </span>
-                        <span id="total-score-display">0 pts</span>
-                    </div>
-                    <button id="sound-toggle-btn" class="hud-btn" type="button" title="Ativar ou desativar efeitos sonoros">
-                        <span class="btn-icon">
-                            <svg class="kc-icon kc-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" fill-opacity="0.25"/>
-                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-                            </svg>
-                        </span>
-                        <span>Áudio Ativo</span>
-                    </button>
-                    <button id="reset-progress-btn" class="hud-btn hud-btn-outline" type="button" title="Reiniciar histórico e dados salvos">
-                        <span class="btn-icon">
-                            <svg class="kc-icon kc-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L2 8"/>
-                                <polyline points="2 3 2 8 7 8"/>
-                            </svg>
-                        </span>
-                        <span>Reiniciar</span>
-                    </button>
-                </div>
+                <h1>KeyCode</h1>
+                <span id="level-concept" class="concept-badge">Instruções Sequenciais</span>
             </div>
 
-            <div class="header-sub-row">
+            <div class="header-level-section">
                 <p id="level-title">Nível 1: Primeiros Passos</p>
-                
-                <!-- Seletor de Nível com status de bloqueio -->
                 <div class="level-selector-container">
-                    <label for="level-selector">Selecione o Nível:</label>
+                    <label for="level-selector">Fase:</label>
                     <select id="level-selector">
                         <!-- Gerado dinamicamente pelo JavaScript com status de conclusão -->
                     </select>
                 </div>
+            </div>
+
+            <!-- HUD Gamer: Estrelas, Placar, Som e Reiniciar -->
+            <div class="hud-panel">
+                <div class="hud-pill" title="Total de estrelas conquistadas em todos os níveis">
+                    <span class="hud-pill-icon kc-star-gold">
+                        <svg class="kc-icon kc-star" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"/>
+                        </svg>
+                    </span>
+                    <span id="total-stars-display">0 / 15</span>
+                </div>
+                <div class="hud-pill" title="Pontuação acumulada">
+                    <span class="hud-pill-icon kc-trophy-gold">
+                        <svg class="kc-icon kc-trophy" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 3H18V9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9V3Z" fill="#f59e0b" stroke="#fbbf24" stroke-width="1.5"/>
+                            <path d="M6 5H3C2.44772 5 2 5.44772 2 6V8C2 9.65685 3.34315 11 5 11H6.3" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M18 5H21C21.5523 5 22 5.44772 22 6V8C22 9.65685 20.6569 11 19 11H17.7" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M12 15V18M8 21H16M9 18H15" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M12 7L12.7 8.5L14.3 8.7L13.1 9.8L13.4 11.4L12 10.6L10.6 11.4L10.9 9.8L9.7 8.7L11.3 8.5L12 7Z" fill="#ffffff"/>
+                        </svg>
+                    </span>
+                    <span id="total-score-display">0 pts</span>
+                </div>
+                <button id="sound-toggle-btn" class="hud-btn" type="button" title="Ativar ou desativar efeitos sonoros">
+                    <span class="btn-icon">
+                        <svg class="kc-icon kc-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" fill-opacity="0.25"/>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                        </svg>
+                    </span>
+                    <span>Áudio Ativo</span>
+                </button>
+                <button id="reset-progress-btn" class="hud-btn hud-btn-outline" type="button" title="Reiniciar histórico e dados salvos">
+                    <span class="btn-icon">
+                        <svg class="kc-icon kc-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L2 8"/>
+                            <polyline points="2 3 2 8 7 8"/>
+                        </svg>
+                    </span>
+                    <span>Reiniciar</span>
+                </button>
             </div>
         </header>
 
@@ -101,31 +97,42 @@
             <aside class="control-panel">
                 <div class="panel-header">
                     <h2>Editor de Algoritmos</h2>
-                    <span class="editor-subtitle">Escreva instruções reais para o robô</span>
+                    <span class="editor-subtitle">Escreva instruções para o robô</span>
                 </div>
                 
-                <!-- Painel de Instruções com os comandos do jogo -->
-                <div class="instructions-panel">
-                    <div class="instructions-header">
-                        <span class="panel-icon">
-                            <svg class="kc-icon kc-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                                <path d="M9 7h6M9 11h4"/>
-                            </svg>
-                        </span>
-                        <h3>Guia de Comandos</h3>
+                <!-- Guia de Comandos com Accordion Retrátil -->
+                <details class="instructions-panel">
+                    <summary class="instructions-header" title="Clique para abrir ou recolher o guia de comandos">
+                        <div class="instructions-title-wrap">
+                            <span class="panel-icon">
+                                <svg class="kc-icon kc-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                    <path d="M9 7h6M9 11h4"/>
+                                </svg>
+                            </span>
+                            <h3>Guia de Comandos</h3>
+                        </div>
+                        <div class="instructions-action-btn">
+                            <span class="btn-text-closed">Ver Comandos</span>
+                            <span class="btn-text-open">Recolher</span>
+                            <span class="details-chevron">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </span>
+                        </div>
+                    </summary>
+                    <div class="instructions-content">
+                        <p class="instructions-intro">Guie o robô azul até a estrela amarela, desviando de paredes e eliminando inimigos no caminho.</p>
+                        <ul>
+                            <li><span>mover(n)</span>: Avança 'n' casas para frente.</li>
+                            <li><span>virarDireita(n)</span>: Gira 90° à direita 'n' vezes.</li>
+                            <li><span>virarEsquerda(n)</span>: Gira 90° à esquerda 'n' vezes.</li>
+                            <li><span>atirarNaFrente()</span>: Destrói obstáculo/inimigo 1 casa à frente.</li>
+                            <li><span>repetir(n) { ... }</span>: Laço para repetir comandos 'n' vezes.</li>
+                        </ul>
+                        <p class="tip"><strong>Dica:</strong> Parâmetros vazios como <code>mover()</code> equivalem a 1 repetição.</p>
                     </div>
-                    <p>Guie o robô azul até a estrela amarela, desviando de paredes e eliminando inimigos no caminho.</p>
-                    <ul>
-                        <li><span>mover(n)</span>: Avança 'n' casas para frente.</li>
-                        <li><span>virarDireita(n)</span>: Gira 90° à direita 'n' vezes.</li>
-                        <li><span>virarEsquerda(n)</span>: Gira 90° à esquerda 'n' vezes.</li>
-                        <li><span>atirarNaFrente()</span>: Destrói o obstáculo/inimigo 1 casa à frente.</li>
-                        <li><span>repetir(n) { ... }</span>: Laço para repetir comandos 'n' vezes.</li>
-                    </ul>
-                    <p class="tip"><strong>Dica Didática:</strong> Parâmetros vazios como <code>mover()</code> equivalem a 1 repetição.</p>
-                </div>
+                </details>
 
                 <!-- Chips de Inserção Rápida (Apoio Pedagógico para digitação) -->
                 <div class="quick-chips-wrapper">
@@ -147,16 +154,18 @@
 
                 <!-- Área de texto onde o aluno escreve o código -->
                 <div class="editor-container">
-                    <textarea id="code-editor" rows="9" spellcheck="false" placeholder="// Digite seu código aqui:&#10;mover(4)&#10;virarDireita()&#10;mover(2)"></textarea>
+                    <textarea id="code-editor" spellcheck="false" placeholder="// Digite seu código aqui:&#10;mover(4)&#10;virarDireita()&#10;mover(2)"></textarea>
                 </div>
 
                 <!-- Barra de Controle de Velocidade e Passo a Passo -->
                 <div class="speed-control-bar">
-                    <span class="speed-label">Velocidade:</span>
-                    <div class="speed-buttons-group">
-                        <button type="button" class="speed-btn active" data-speed="normal" title="Velocidade normal">1x</button>
-                        <button type="button" class="speed-btn" data-speed="fast" title="Execução acelerada">2x</button>
-                        <button type="button" class="speed-btn" data-speed="step" title="Avançar comando por comando manualmente">Passo a Passo</button>
+                    <div class="speed-left">
+                        <span class="speed-label">Velocidade:</span>
+                        <div class="speed-buttons-group">
+                            <button type="button" class="speed-btn active" data-speed="normal" title="Velocidade normal">1x</button>
+                            <button type="button" class="speed-btn" data-speed="fast" title="Execução acelerada">2x</button>
+                            <button type="button" class="speed-btn" data-speed="step" title="Avançar comando por comando manualmente">Passo a Passo</button>
+                        </div>
                     </div>
                     <button type="button" id="step-button" class="btn btn-step" disabled title="Executar o próximo comando no modo Passo a Passo">
                         <span class="btn-icon">
@@ -207,18 +216,20 @@
                     <h3>Simulação em Tempo Real</h3>
                     <span class="grid-badge">Grid Interativo 5x5</span>
                 </div>
-                <!-- O grid do jogo será gerado e inserido aqui pelo JavaScript -->
-                <div id="grid-container"></div>
+                <!-- Container flexível que garante proporção 1:1 sem estourar altura -->
+                <div class="grid-wrapper">
+                    <div id="grid-container"></div>
+                </div>
             </main>
         </div>
-    </div>
 
-    <!-- Rodapé da página -->
-    <footer class="footer">
-        <span>Projeto de Extensão Acadêmica <strong>IFSP Catanduva</strong> &bull; Escola Mario Florence</span>
-        <span class="footer-divider">|</span>
-        <span>Desenvolvido com carinho por <a href="https://github.com/PedroPereiraAst" target="_blank">@PedroPereira</a> &amp; <a href="https://github.com/RyanCantareli" target="_blank">@RyanCantareli</a></span>
-    </footer>
+        <!-- Rodapé compacto da página -->
+        <footer class="footer">
+            <span>Projeto de Extensão Acadêmica <strong>IFSP Catanduva</strong> &bull; Escola Mario Florence</span>
+            <span class="footer-divider">|</span>
+            <span>Desenvolvido por <a href="https://github.com/PedroPereiraAst" target="_blank">@PedroPereira</a> &amp; <a href="https://github.com/RyanCantareli" target="_blank">@RyanCantareli</a></span>
+        </footer>
+    </div>
 
     <!-- Modal Gamificado (Vitória com Estrelas, Erro ou Colisão) -->
     <div id="message-box" class="modal">
