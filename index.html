@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KeyCode | Plataforma Educacional de Programação</title>
     
+    <!-- Google Fonts: Urbanist (Títulos), Inter (Interface), JetBrains Mono (Código) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Urbanist:wght@600;700;800;900&display=swap" rel="stylesheet">
+
     <!-- Link para folha de estilos CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -13,23 +18,73 @@
     <!-- Container principal que centraliza o conteúdo do jogo -->
     <div class="main-container">
         
-        <!-- Cabeçalho da página & HUD Gamer Gamificado -->
+        <!-- Cabeçalho da página & HUD Gamer Moderno -->
         <header class="app-header">
             <div class="brand">
                 <div class="brand-logo" title="KeyCode">
                     <svg class="kc-icon kc-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="kcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#2dd4bf" />
-                                <stop offset="100%" stop-color="#38bdf8" />
+                            <linearGradient id="kcModernGradHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00F5FF" />
+                                <stop offset="100%" stop-color="#28C76F" />
                             </linearGradient>
+                            <linearGradient id="botChassisHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#2B3746" />
+                                <stop offset="100%" stop-color="#18222E" />
+                            </linearGradient>
+                            <linearGradient id="starGoldHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#FFF176" />
+                                <stop offset="50%" stop-color="#FFC107" />
+                                <stop offset="100%" stop-color="#FF8F00" />
+                            </linearGradient>
+                            <filter id="starGlowHeader" x="-30%" y="-30%" width="160%" height="160%">
+                                <feDropShadow dx="0" dy="0" stdDeviation="1" flood-color="#FFC107" flood-opacity="0.9"/>
+                            </filter>
                         </defs>
-                        <rect x="3" y="3" width="26" height="26" rx="8" fill="#0f172a" stroke="url(#kcGrad)" stroke-width="2"/>
-                        <path d="M10 11L6.5 16L10 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M22 11L25.5 16L22 21" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M16 8C14.5 10.5 13.5 13.5 13.5 17L16 19L18.5 17C18.5 13.5 17.5 10.5 16 8Z" fill="url(#kcGrad)"/>
-                        <circle cx="16" cy="13.5" r="1.25" fill="#0f172a"/>
-                        <path d="M14 20L13 23M18 20L19 23M16 19V24" stroke="#38bdf8" stroke-width="1.75" stroke-linecap="round"/>
+
+                        <!-- Base Squircle Dark Slate com Borda Neon Ciano/Verde -->
+                        <rect x="2.5" y="2.5" width="27" height="27" rx="7.5" fill="#1E232D" stroke="url(#kcModernGradHeader)" stroke-width="1.75"/>
+
+                        <!-- Trilha tática de mira e perseguição na diagonal -->
+                        <path d="M 13.5 17.5 L 19.5 11.5" stroke="#00F5FF" stroke-width="1.6" stroke-dasharray="2 2" stroke-linecap="round" stroke-opacity="0.8"/>
+
+                        <!-- Jatos de Propulsão Neon atrás do robô -->
+                        <line x1="4.8" y1="26.5" x2="3.2" y2="28.2" stroke="#00F5FF" stroke-width="1.8" stroke-linecap="round"/>
+                        <line x1="7.2" y1="28.8" x2="5.8" y2="30.2" stroke="#28C76F" stroke-width="1.5" stroke-linecap="round"/>
+
+                        <!-- Robô Protagonista (angulado na diagonal ~25° caçando a estrela) -->
+                        <g transform="translate(10.5, 20.5) rotate(-24) translate(-10.5, -20.5)">
+                            <!-- Antena cyber com emissor -->
+                            <line x1="10.5" y1="9.8" x2="10.5" y2="12.8" stroke="#00F5FF" stroke-width="1.6" stroke-linecap="round"/>
+                            <circle cx="10.5" cy="9.2" r="1.5" fill="#00F5FF"/>
+
+                            <!-- Atuadores / Braços laterais -->
+                            <rect x="2.8" y="16.5" width="2.4" height="6.5" rx="1.2" fill="#00F5FF"/>
+                            <rect x="15.8" y="16.5" width="2.4" height="6.5" rx="1.2" fill="#00F5FF"/>
+
+                            <!-- Chassi principal da cabeça -->
+                            <rect x="5.2" y="12.5" width="10.6" height="12.5" rx="3.5" fill="url(#botChassisHeader)" stroke="#00F5FF" stroke-width="1.5"/>
+
+                            <!-- Visor panorâmico escuro -->
+                            <rect x="6.5" y="14.8" width="8" height="4.8" rx="2.4" fill="#090E17"/>
+
+                            <!-- Olhos de LED Ciano (focados no canto superior direito) -->
+                            <circle cx="8.6" cy="17.2" r="1.3" fill="#00F5FF"/>
+                            <circle cx="12.4" cy="17.2" r="1.3" fill="#00F5FF"/>
+                            <circle cx="9" cy="16.7" r="0.5" fill="#ffffff"/>
+                            <circle cx="12.8" cy="16.7" r="0.5" fill="#ffffff"/>
+
+                            <!-- Núcleo Reator de Energia Peitoral -->
+                            <rect x="8.2" y="21.8" width="4.6" height="1.8" rx="0.9" fill="#00F5FF"/>
+                        </g>
+
+                        <!-- Estrela Dourada Conquistável (limpa, nítida e radiante) -->
+                        <g filter="url(#starGlowHeader)">
+                            <path d="M 23 3.8 L 24.8 8.4 L 29.6 9 L 26 12.5 L 27 17.2 L 23 14.8 L 19 17.2 L 20 12.5 L 16.4 9 L 21.2 8.4 Z" fill="url(#starGoldHeader)" stroke="#FFFDE7" stroke-width="0.9" stroke-linejoin="round"/>
+                            <!-- Brilho facetado suave no topo -->
+                            <path d="M 23 3.8 L 23 14.8 L 19 17.2 L 20 12.5 L 16.4 9 L 21.2 8.4 Z" fill="#ffffff" fill-opacity="0.3"/>
+                        </g>
+                        <circle cx="28.8" cy="4.8" r="0.8" fill="#FFF176"/>
                     </svg>
                 </div>
                 <h1>KeyCode</h1>
@@ -50,8 +105,14 @@
             <div class="hud-panel">
                 <div class="hud-pill" title="Total de estrelas conquistadas em todos os níveis">
                     <span class="hud-pill-icon kc-star-gold">
-                        <svg class="kc-icon kc-star" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"/>
+                        <svg class="kc-icon kc-star" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="hudStarModernHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFD54F" />
+                                    <stop offset="100%" stop-color="#FFB300" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z" fill="url(#hudStarModernHeader)" stroke="#FFE082" stroke-width="1.2" stroke-linejoin="round"/>
                         </svg>
                     </span>
                     <span id="total-stars-display">0 / 15</span>
@@ -59,11 +120,16 @@
                 <div class="hud-pill" title="Pontuação acumulada">
                     <span class="hud-pill-icon kc-trophy-gold">
                         <svg class="kc-icon kc-trophy" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 3H18V9C18 12.3137 15.3137 15 12 15C8.68629 15 6 12.3137 6 9V3Z" fill="#f59e0b" stroke="#fbbf24" stroke-width="1.5"/>
-                            <path d="M6 5H3C2.44772 5 2 5.44772 2 6V8C2 9.65685 3.34315 11 5 11H6.3" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M18 5H21C21.5523 5 22 5.44772 22 6V8C22 9.65685 20.6569 11 19 11H17.7" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M12 15V18M8 21H16M9 18H15" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M12 7L12.7 8.5L14.3 8.7L13.1 9.8L13.4 11.4L12 10.6L10.6 11.4L10.9 9.8L9.7 8.7L11.3 8.5L12 7Z" fill="#ffffff"/>
+                            <defs>
+                                <linearGradient id="trophyModernHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFD54F" />
+                                    <stop offset="100%" stop-color="#FF9800" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M6 3H18V9.5C18 12.8 15.3 15.5 12 15.5C8.7 15.5 6 12.8 6 9.5V3Z" fill="url(#trophyModernHeader)" stroke="#FFE082" stroke-width="1.2"/>
+                            <path d="M6 4.5H3.5C2.7 4.5 2 5.2 2 6V8C2 9.7 3.3 11 5 11H6.3" stroke="#FFB300" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M18 4.5H20.5C21.3 4.5 22 5.2 22 6V8C22 9.7 20.7 11 19 11H17.7" stroke="#FFB300" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M12 15.5V18.5M8 21.5H16M9 18.5H15" stroke="#FFB300" stroke-width="1.8" stroke-linecap="round"/>
                         </svg>
                     </span>
                     <span id="total-score-display">0 pts</span>
@@ -71,7 +137,7 @@
                 <button id="sound-toggle-btn" class="hud-btn" type="button" title="Ativar ou desativar efeitos sonoros">
                     <span class="btn-icon">
                         <svg class="kc-icon kc-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" fill-opacity="0.25"/>
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" fill-opacity="0.3"/>
                             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
                             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
                         </svg>
@@ -122,15 +188,15 @@
                         </div>
                     </summary>
                     <div class="instructions-content">
-                        <p class="instructions-intro">Guie o robô azul até a estrela amarela, desviando de paredes e eliminando inimigos no caminho.</p>
+                        <p class="instructions-intro">Guie o robô até a estrela amarela, desviando de barreiras e desativando drones com seu canhão laser.</p>
                         <ul>
                             <li><span>mover(n)</span>: Avança 'n' casas para frente.</li>
                             <li><span>virarDireita(n)</span>: Gira 90° à direita 'n' vezes.</li>
                             <li><span>virarEsquerda(n)</span>: Gira 90° à esquerda 'n' vezes.</li>
-                            <li><span>atirarNaFrente()</span>: Destrói obstáculo/inimigo 1 casa à frente.</li>
+                            <li><span>atirarNaFrente()</span>: Destrói obstáculo/drone 1 casa à frente.</li>
                             <li><span>repetir(n) { ... }</span>: Laço para repetir comandos 'n' vezes.</li>
                         </ul>
-                        <p class="tip"><strong>Dica:</strong> Parâmetros vazios como <code>mover()</code> equivalem a 1 repetição.</p>
+                        <p class="tip"><strong>Dica:</strong> Comandos com parâmetro vazio, como <code>mover()</code>, equivalem a 1 passo.</p>
                     </div>
                 </details>
 
@@ -169,9 +235,9 @@
                     </div>
                     <button type="button" id="step-button" class="btn btn-step" disabled title="Executar o próximo comando no modo Passo a Passo">
                         <span class="btn-icon">
-                            <svg class="kc-icon kc-step" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                <polygon points="4 5 12 12 4 19 4 5"/>
-                                <polygon points="12 5 20 12 12 19 12 5"/>
+                            <svg class="kc-icon kc-step" viewBox="0 0 24 24" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="4 5 12 12 4 19"/>
+                                <polygon points="12 5 20 12 12 19"/>
                             </svg>
                         </span>
                         <span>Avançar</span>
@@ -182,8 +248,8 @@
                 <div class="button-grid">
                     <button id="run-button" class="btn btn-green">
                         <span class="btn-icon">
-                            <svg class="kc-icon kc-play" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                <polygon points="6 4 20 12 6 20 6 4"/>
+                            <svg class="kc-icon kc-play" viewBox="0 0 24 24" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="6 4 20 12 6 20"/>
                             </svg>
                         </span>
                         <span>Executar Código</span>
