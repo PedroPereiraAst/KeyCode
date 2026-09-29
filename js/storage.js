@@ -260,3 +260,46 @@ export function exportMetricsReport() {
         levels: progress.levelData
     };
 }
+
+// =============================================================================
+// PREFERÊNCIAS DE TEMA (Modo Claro / Modo Escuro)
+// =============================================================================
+
+const THEME_STORAGE_KEY = 'keycode_theme_preference';
+
+/**
+ * Obtém a preferência de tema salva ou detecta a preferência do sistema operacional.
+ */
+export function getSavedTheme() {
+    try {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const themeParam = urlParams.get('theme');
+            if (themeParam === 'light' || themeParam === 'dark') {
+                return themeParam;
+            }
+        }
+        if (typeof localStorage === 'undefined') return 'dark';
+        const saved = localStorage.getItem(THEME_STORAGE_KEY);
+        if (saved === 'light' || saved === 'dark') return saved;
+        if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            return 'light';
+        }
+        return 'dark';
+    } catch (e) {
+        return 'dark';
+    }
+}
+
+/**
+ * Salva a preferência de tema no localStorage.
+ */
+export function saveTheme(theme) {
+    try {
+        if (typeof localStorage === 'undefined') return;
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (e) {
+        console.warn('Erro ao salvar preferência de tema:', e);
+    }
+}
+

@@ -109,6 +109,32 @@ export const Icons = {
     `,
 
     /**
+     * Sol / Modo Claro
+     */
+    sun: `
+        <svg class="kc-icon kc-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2"/>
+            <path d="M12 20v2"/>
+            <path d="m4.93 4.93 1.41 1.41"/>
+            <path d="m17.66 17.66 1.41 1.41"/>
+            <path d="M2 12h2"/>
+            <path d="M20 12h2"/>
+            <path d="m6.34 17.66-1.41 1.41"/>
+            <path d="m19.07 4.93-1.41 1.41"/>
+        </svg>
+    `,
+
+    /**
+     * Lua / Modo Escuro
+     */
+    moon: `
+        <svg class="kc-icon kc-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+        </svg>
+    `,
+
+    /**
      * Alto-falante ativo (Áudio On)
      */
     soundOn: `
@@ -445,7 +471,7 @@ export const Icons = {
      * circuitos em neon ciano e reforço modular de segurança.
      */
     wall: `
-        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" class="kc-wall-svg">
             <defs>
                 <linearGradient id="wallPlate" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#334155" />
@@ -453,21 +479,21 @@ export const Icons = {
                 </linearGradient>
             </defs>
             <!-- Chassi do bloco -->
-            <rect x="3.5" y="3.5" width="29" height="29" rx="6" fill="url(#wallPlate)" stroke="#475569" stroke-width="1.8"/>
+            <rect class="wall-plate" x="3.5" y="3.5" width="29" height="29" rx="6" fill="url(#wallPlate)" stroke="#475569" stroke-width="1.8"/>
             
             <!-- Linhas de circuito tecnológico em ciano sutil -->
-            <line x1="3.5" y1="18" x2="32.5" y2="18" stroke="#00F5FF" stroke-opacity="0.4" stroke-width="1.4"/>
-            <line x1="18" y1="3.5" x2="18" y2="32.5" stroke="#00F5FF" stroke-opacity="0.4" stroke-width="1.4"/>
+            <line class="wall-line" x1="3.5" y1="18" x2="32.5" y2="18" stroke="#00F5FF" stroke-opacity="0.4" stroke-width="1.4"/>
+            <line class="wall-line" x1="18" y1="3.5" x2="18" y2="32.5" stroke="#00F5FF" stroke-opacity="0.4" stroke-width="1.4"/>
             
             <!-- Núcleo central de segurança -->
-            <rect x="12" y="12" width="12" height="12" rx="3" fill="#1E232D" stroke="#00F5FF" stroke-opacity="0.6" stroke-width="1.2"/>
-            <circle cx="18" cy="18" r="2" fill="#00F5FF" fill-opacity="0.75"/>
+            <rect class="wall-core" x="12" y="12" width="12" height="12" rx="3" fill="#1E232D" stroke="#00F5FF" stroke-opacity="0.6" stroke-width="1.2"/>
+            <circle class="wall-dot" cx="18" cy="18" r="2" fill="#00F5FF" fill-opacity="0.75"/>
             
             <!-- Rebites modernos nos cantos -->
-            <circle cx="8" cy="8" r="1.5" fill="#64748b"/>
-            <circle cx="28" cy="8" r="1.5" fill="#64748b"/>
-            <circle cx="8" cy="28" r="1.5" fill="#64748b"/>
-            <circle cx="28" cy="28" r="1.5" fill="#64748b"/>
+            <circle class="wall-rivet" cx="8" cy="8" r="1.5" fill="#64748b"/>
+            <circle class="wall-rivet" cx="28" cy="8" r="1.5" fill="#64748b"/>
+            <circle class="wall-rivet" cx="8" cy="28" r="1.5" fill="#64748b"/>
+            <circle class="wall-rivet" cx="28" cy="28" r="1.5" fill="#64748b"/>
         </svg>
     `,
 

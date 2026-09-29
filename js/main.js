@@ -14,7 +14,9 @@ import {
     updateHUD, 
     updateEditorUI,
     syncEditorScroll,
-    flashSaveStatus
+    flashSaveStatus,
+    applyTheme,
+    getTheme
 } from './ui.js';
 import { sound } from './audio.js';
 import { 
@@ -22,7 +24,9 @@ import {
     loadProgress,
     saveLevelCode,
     loadLevelCode,
-    clearLevelCode
+    clearLevelCode,
+    getSavedTheme,
+    saveTheme
 } from './storage.js';
 import { 
     getCurrentLevel, 
@@ -42,8 +46,13 @@ function loadLevelIntoUI(levelIndex) {
     setCurrentLevel(levelIndex);
     setupLevel(levelIndex);
 
-    // Memória de código por fase: recupera o código do aluno caso já tenha escrito algo nesta fase
-    const savedCode = loadLevelCode(levelIndex);
+    // Memória de código por fase: recupera o código do aluno caso já tenha escrito algo nesta fase (ou parâmetro de URL)
+    let initialCode = null;
+    if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        initialCode = urlParams.get('code');
+    }
+    const savedCode = initialCode !== null ? initialCode : loadLevelCode(levelIndex);
 
     if (savedCode !== null && savedCode !== undefined) {
         elements.codeEditor.value = savedCode;
@@ -147,6 +156,20 @@ function init() {
             sound.playClick();
             const selectedLevel = parseInt(e.target.value, 10);
             loadLevelIntoUI(selectedLevel);
+        });
+    }
+
+    // Inicialização do Tema Salvo
+    const initialTheme = getSavedTheme();
+    applyTheme(initialTheme);
+
+    // Botão Alternar Tema (Modo Claro / Modo Escuro)
+    if (elements.themeToggleBtn) {
+        elements.themeToggleBtn.addEventListener('click', () => {
+            sound.playClick();
+            const nextTheme = getTheme() === 'light' ? 'dark' : 'light';
+            saveTheme(nextTheme);
+            applyTheme(nextTheme);
         });
     }
 
@@ -271,9 +294,19 @@ function init() {
         }
     });
 
-    // Carrega o progresso salvo e monta a fase inicial com seu código
+    // Carrega o progresso salvo e monta a fase inicial com seu código (permite ?level= no teste)
     const progress = loadProgress();
-    const initialLevel = Math.min(progress.unlockedLevel || 0, levels.length - 1);
+    let initialLevel = Math.min(progress.unlockedLevel || 0, levels.length - 1);
+    if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const lvlParam = urlParams.get('level');
+        if (lvlParam !== null) {
+            const parsedLvl = parseInt(lvlParam, 10);
+            if (!isNaN(parsedLvl) && parsedLvl >= 0 && parsedLvl < levels.length) {
+                initialLevel = parsedLvl;
+            }
+        }
+    }
     loadLevelIntoUI(initialLevel);
 
     // Pré-ativação do motor de som no primeiro clique em qualquer lugar da tela

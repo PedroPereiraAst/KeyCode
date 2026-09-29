@@ -27,6 +27,8 @@ export const elements = {
     // HUD Superior
     totalStarsDisplay: getEl('total-stars-display'),
     totalScoreDisplay: getEl('total-score-display'),
+    themeToggleBtn: getEl('theme-toggle-btn'),
+    themeToggleText: getEl('theme-toggle-text'),
     soundToggleBtn: getEl('sound-toggle-btn'),
     resetProgressBtn: getEl('reset-progress-btn'),
 
@@ -69,6 +71,8 @@ export function refreshElements() {
     elements.levelSelector = getEl('level-selector');
     elements.totalStarsDisplay = getEl('total-stars-display');
     elements.totalScoreDisplay = getEl('total-score-display');
+    elements.themeToggleBtn = getEl('theme-toggle-btn');
+    elements.themeToggleText = getEl('theme-toggle-text');
     elements.soundToggleBtn = getEl('sound-toggle-btn');
     elements.resetProgressBtn = getEl('reset-progress-btn');
     elements.codeEditor = getEl('code-editor');
@@ -96,6 +100,41 @@ export function refreshElements() {
     elements.hintBox = getEl('hint-box');
     elements.hintText = getEl('hint-text');
     elements.closeHintButton = getEl('close-hint-button');
+}
+
+// =============================================================================
+// GERENCIAMENTO DE TEMA (CLARO / ESCURO)
+// =============================================================================
+
+let currentTheme = 'dark';
+
+export function getTheme() {
+    return currentTheme;
+}
+
+export function applyTheme(theme) {
+    currentTheme = theme;
+    const isLight = theme === 'light';
+
+    if (typeof document !== 'undefined') {
+        if (document.body) {
+            document.body.classList.toggle('light-theme', isLight);
+        }
+        if (document.documentElement) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.classList.toggle('light-theme', isLight);
+        }
+    }
+
+    if (elements.themeToggleBtn) {
+        elements.themeToggleBtn.innerHTML = `
+            <span class="btn-icon">${isLight ? Icons.moon : Icons.sun}</span>
+            <span id="theme-toggle-text">${isLight ? 'Modo Escuro' : 'Modo Claro'}</span>
+        `;
+        elements.themeToggleBtn.setAttribute('title', isLight ? 'Alternar para Modo Escuro' : 'Alternar para Modo Claro');
+        elements.themeToggleBtn.setAttribute('aria-label', isLight ? 'Alternar para Modo Escuro' : 'Alternar para Modo Claro');
+        elements.themeToggleBtn.classList.toggle('theme-light-active', isLight);
+    }
 }
 
 /**
