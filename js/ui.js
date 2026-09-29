@@ -1,8 +1,7 @@
 // =============================================================================
 // KEYCODE - GERENCIADOR DE INTERFACE DO USUÁRIO & GAMIFICAÇÃO (UI / HUD)
 // Responsável por renderizar o HUD de estrelas, sons, feedback visual de erros,
-// inserção de comandos rápidos (chips), modais e integração com o sistema
-// visual de ícones vetoriais próprios (sem emojis).
+// modais e integração com o sistema visual de ícones vetoriais próprios (sem emojis).
 // =============================================================================
 
 import { loadProgress, isLevelUnlocked, getLevelData } from './storage.js';
@@ -33,12 +32,18 @@ export const elements = {
 
     // Editor e Controles
     codeEditor: getEl('code-editor'),
+    editorGutter: getEl('editor-gutter'),
+    editorHighlight: getEl('editor-highlight'),
+    editorHighlightContent: getEl('editor-highlight-content'),
+    activeLineBar: getEl('active-line-bar'),
+    editorLineCount: getEl('editor-line-count'),
+    editorSaveStatus: getEl('editor-save-status'),
+    copyCodeBtn: getEl('copy-code-btn'),
     runButton: getEl('run-button'),
     resetButton: getEl('reset-button'),
     hintButton: getEl('hint-button'),
     stepButton: getEl('step-button'),
     speedButtons: getAll('.speed-btn'),
-    quickChips: getAll('.quick-chip'),
     syntaxBanner: getEl('syntax-error-banner'),
     executionStatus: getEl('execution-status'),
 
@@ -67,12 +72,18 @@ export function refreshElements() {
     elements.soundToggleBtn = getEl('sound-toggle-btn');
     elements.resetProgressBtn = getEl('reset-progress-btn');
     elements.codeEditor = getEl('code-editor');
+    elements.editorGutter = getEl('editor-gutter');
+    elements.editorHighlight = getEl('editor-highlight');
+    elements.editorHighlightContent = getEl('editor-highlight-content');
+    elements.activeLineBar = getEl('active-line-bar');
+    elements.editorLineCount = getEl('editor-line-count');
+    elements.editorSaveStatus = getEl('editor-save-status');
+    elements.copyCodeBtn = getEl('copy-code-btn');
     elements.runButton = getEl('run-button');
     elements.resetButton = getEl('reset-button');
     elements.hintButton = getEl('hint-button');
     elements.stepButton = getEl('step-button');
     elements.speedButtons = getAll('.speed-btn');
-    elements.quickChips = getAll('.quick-chip');
     elements.syntaxBanner = getEl('syntax-error-banner');
     elements.executionStatus = getEl('execution-status');
     elements.messageBox = getEl('message-box');
@@ -177,53 +188,204 @@ export function clearSyntaxError() {
     }
 }
 
-/**
- * Mostra a linha e instrução ativa em tempo real durante a execução com ícone indicador.
- */
-export function updateActiveExecutionLine(lineNum, cmdLabel = '') {
-    if (!elements.executionStatus) return;
+// =============================================================================
+// MOTOR DE REALCE DE SINTAXE E EDITOR (Vanilla Mini-IDE)
+// =============================================================================
 
-    if (lineNum === null) {
-        elements.executionStatus.innerHTML = '';
-        elements.executionStatus.classList.remove('visible');
-        elements.executionStatus.classList.add('hidden');
-    } else {
-        elements.executionStatus.innerHTML = `
-            <span class="exec-icon">${Icons.executing}</span>
-            <span>Executando Linha <strong>${lineNum}</strong>: <code>${cmdLabel}</code></span>
-        `;
-        elements.executionStatus.classList.remove('hidden');
-        elements.executionStatus.classList.add('visible');
+const TOKEN_REGEX = /(\/\/[^\n]*|#[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b(?:mover|virarDireita|virarEsquerda|atirarNaFrente)\b)|(\b(?:repetir)\b)|(\b\d+\b)|([{}();,])|([^\s"'/#{}(),\w;]+|\w+|\s+)/g;
+
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+/**
+ * Aplica realce léxico ao código do aluno com base na gramática do KeyCode.
+ */
+export function highlightCode(code) {
+    if (!code) return '';
+    TOKEN_REGEX.lastIndex = 0;
+    let html = '';
+    let match;
+    while ((match = TOKEN_REGEX.exec(code)) !== null) {
+        const [full, comment, str, cmd, kw, num, punct, other] = match;
+        if (comment) {
+            html += `<span class="tok-comment">${escapeHtml(comment)}</span>`;
+        } else if (str) {
+            html += `<span class="tok-string">${escapeHtml(str)}</span>`;
+        } else if (cmd) {
+            html += `<span class="tok-cmd">${escapeHtml(cmd)}</span>`;
+        } else if (kw) {
+            html += `<span class="tok-kw">${escapeHtml(kw)}</span>`;
+        } else if (num) {
+            html += `<span class="tok-num">${escapeHtml(num)}</span>`;
+        } else if (punct) {
+            html += `<span class="tok-punct">${escapeHtml(punct)}</span>`;
+        } else if (other) {
+            html += escapeHtml(other);
+        } else {
+            html += escapeHtml(full);
+        }
+    }
+    if (code.endsWith('\n')) {
+        html += '<br>';
+    }
+    return html;
+}
+
+let currentActiveLineNum = null;
+
+/**
+ * Conta em tempo real o total de comandos válidos escritos pelo aluno.
+ */
+export function countCodeCommands(code) {
+    if (!code) return 0;
+    const clean = code.replace(/(\/\/[^\n]*|#[^\n]*)/g, '');
+    const matches = clean.match(/\b(mover|virarDireita|virarEsquerda|atirarNaFrente|repetir)\b/gi);
+    return matches ? matches.length : 0;
+}
+
+/**
+ * Atualiza o realce de sintaxe, os números de linha (gutter) e os contadores da IDE.
+ */
+export function updateEditorUI() {
+    const editor = elements.codeEditor;
+    if (!editor) return;
+
+    const code = editor.value;
+
+    // 1. Atualiza camada de realce de sintaxe
+    if (elements.editorHighlightContent) {
+        elements.editorHighlightContent.innerHTML = highlightCode(code);
+    }
+
+    // 2. Atualiza números de linha no Gutter lateral
+    if (elements.editorGutter) {
+        const lines = code.split('\n');
+        const count = Math.max(1, lines.length);
+
+        let gutterHtml = '';
+        for (let i = 1; i <= count; i++) {
+            const isActive = currentActiveLineNum === i;
+            gutterHtml += `<div class="gutter-line${isActive ? ' line-active' : ''}" data-line="${i}"><span class="gutter-num">${i}</span></div>`;
+        }
+        elements.editorGutter.innerHTML = gutterHtml;
+
+        if (elements.editorLineCount) {
+            const cmdCount = countCodeCommands(code);
+            const lineText = `${count} ${count === 1 ? 'linha' : 'linhas'}`;
+            const cmdText = `${cmdCount} ${cmdCount === 1 ? 'comando' : 'comandos'}`;
+            elements.editorLineCount.textContent = `${lineText} • ${cmdText}`;
+        }
+    }
+
+    // 3. Re-sincroniza a barra luminosa de linha ativa
+    if (elements.activeLineBar) {
+        if (currentActiveLineNum === null) {
+            elements.activeLineBar.style.display = 'none';
+        } else {
+            elements.activeLineBar.style.display = 'block';
+            elements.activeLineBar.style.top = `${8 + (currentActiveLineNum - 1) * 24}px`;
+        }
+    }
+
+    // 4. Sincroniza o scroll do textarea com o gutter e highlight
+    syncEditorScroll();
+}
+
+/**
+ * Sincroniza a rolagem horizontal e vertical entre o textarea, gutter e o preview de cores.
+ */
+export function syncEditorScroll() {
+    const editor = elements.codeEditor;
+    if (!editor) return;
+
+    if (elements.editorHighlight) {
+        elements.editorHighlight.scrollTop = editor.scrollTop;
+        elements.editorHighlight.scrollLeft = editor.scrollLeft;
+    }
+    if (elements.editorGutter) {
+        elements.editorGutter.scrollTop = editor.scrollTop;
     }
 }
 
 /**
- * Insere um comando rápido na posição do cursor do editor de código.
+ * Exibe feedback temporário de salvamento automático no rodapé da IDE.
  */
-export function insertCommandAtCursor(commandText) {
-    sound.playClick();
-    const textarea = elements.codeEditor;
-    if (!textarea) return;
+let saveStatusTimer = null;
+export function flashSaveStatus(text = 'Salvo localmente ✓') {
+    if (!elements.editorSaveStatus) return;
+    elements.editorSaveStatus.textContent = text;
+    elements.editorSaveStatus.style.opacity = '1';
+    if (saveStatusTimer) clearTimeout(saveStatusTimer);
+    saveStatusTimer = setTimeout(() => {
+        if (elements.editorSaveStatus) {
+            elements.editorSaveStatus.style.opacity = '0.65';
+        }
+    }, 1800);
+}
 
-    const startPos = textarea.selectionStart;
-    const endPos = textarea.selectionEnd;
-    const before = textarea.value.substring(0, startPos);
-    const after = textarea.value.substring(endPos);
+/**
+ * Mostra a linha e instrução ativa em tempo real durante a execução com ícone indicador,
+ * iluminando a linha no gutter e projetando a barra neon sobre a instrução correspondente.
+ */
+export function updateActiveExecutionLine(lineNum, cmdLabel = '') {
+    currentActiveLineNum = lineNum;
 
-    // Adiciona quebra de linha se não estiver no começo de uma linha limpa
-    let insert = commandText;
-    if (before.length > 0 && !before.endsWith('\n')) {
-        insert = '\n' + insert;
+    // 1. Status textual superior
+    if (elements.executionStatus) {
+        if (lineNum === null) {
+            elements.executionStatus.innerHTML = '';
+            elements.executionStatus.classList.remove('visible');
+            elements.executionStatus.classList.add('hidden');
+        } else {
+            elements.executionStatus.innerHTML = `
+                <span class="exec-icon">${Icons.executing}</span>
+                <span>Executando Linha <strong>${lineNum}</strong>: <code>${cmdLabel}</code></span>
+            `;
+            elements.executionStatus.classList.remove('hidden');
+            elements.executionStatus.classList.add('visible');
+        }
     }
-    if (!after.startsWith('\n')) {
-        insert = insert + '\n';
+
+    // 2. Gutter (destaque na numeração de linhas)
+    if (elements.editorGutter) {
+        const prevActive = elements.editorGutter.querySelectorAll('.gutter-line.line-active');
+        prevActive.forEach(el => el.classList.remove('line-active'));
+
+        if (lineNum !== null) {
+            const activeLineEl = elements.editorGutter.querySelector(`.gutter-line[data-line="${lineNum}"]`);
+            if (activeLineEl) {
+                activeLineEl.classList.add('line-active');
+            }
+        }
     }
 
-    textarea.value = before + insert + after;
-    const newCursor = startPos + insert.length;
-    textarea.selectionStart = newCursor;
-    textarea.selectionEnd = newCursor;
-    textarea.focus();
+    // 3. Barra luminosa sobre a linha em execução
+    if (elements.activeLineBar) {
+        if (lineNum === null) {
+            elements.activeLineBar.style.display = 'none';
+        } else {
+            elements.activeLineBar.style.display = 'block';
+            const topPos = 8 + (lineNum - 1) * 24;
+            elements.activeLineBar.style.top = `${topPos}px`;
+
+            // Rola suavemente para acompanhar a execução
+            const editor = elements.codeEditor;
+            if (editor) {
+                const viewTop = editor.scrollTop;
+                const viewBottom = viewTop + editor.clientHeight;
+                if (topPos < viewTop || topPos + 24 > viewBottom) {
+                    editor.scrollTop = Math.max(0, topPos - 24);
+                    syncEditorScroll();
+                }
+            }
+        }
+    }
 }
 
 /**

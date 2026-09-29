@@ -70,7 +70,9 @@ export function setupLevel(levelIndex) {
     currentLevel = levelIndex;
     const level = levels[currentLevel];
 
-    elements.levelTitle.textContent = level.title;
+    if (elements.levelTitle) {
+        elements.levelTitle.textContent = level.title;
+    }
     robotState = { ...level.robot };
     goalState = { ...level.goal };
     activeEnemies = level.enemies ? JSON.parse(JSON.stringify(level.enemies)) : [];
@@ -171,7 +173,6 @@ function render() {
  */
 export function resetLevel() {
     usedHintInCurrentAttempt = false;
-    elements.codeEditor.value = '';
     setupLevel(currentLevel);
 }
 
@@ -309,6 +310,7 @@ export function parseCode(code) {
 
     function parseBlockOrStatements(isBlock = false) {
         const actions = [];
+        let writtenCommandsCount = 0;
 
         while (peek().type !== 'EOF') {
             if (isBlock && peek().type === 'RBRACE') {
@@ -377,6 +379,8 @@ export function parseCode(code) {
                     next();
                 }
 
+                writtenCommandsCount += 1 + (innerResult.writtenCommandsCount || 0);
+
                 // Replica as ações n vezes
                 for (let c = 0; c < count; c++) {
                     for (const act of innerResult.actions) {
@@ -431,6 +435,8 @@ export function parseCode(code) {
             if (cmdName === 'viraresquerda') actionType = 'left';
             if (cmdName === 'atirarnafrente') actionType = 'shoot';
 
+            writtenCommandsCount += 1;
+
             for (let k = 0; k < count; k++) {
                 actions.push({
                     type: actionType,
@@ -440,7 +446,7 @@ export function parseCode(code) {
             }
         }
 
-        return { actions };
+        return { actions, writtenCommandsCount };
     }
 
     const parseResult = parseBlockOrStatements(false);
@@ -448,7 +454,8 @@ export function parseCode(code) {
 
     return {
         commands: parseResult.actions,
-        totalLinesWritten: validLineCount
+        totalLinesWritten: validLineCount,
+        totalCommandsWritten: parseResult.writtenCommandsCount
     };
 }
 
@@ -473,6 +480,7 @@ export function parseAndRunCommands() {
 
     const commands = parseResult.commands;
     const totalLinesWritten = parseResult.totalLinesWritten;
+    const totalCommandsWritten = parseResult.totalCommandsWritten || totalLinesWritten;
 
     if (commands.length === 0) {
         sound.playError();
@@ -506,7 +514,7 @@ export function parseAndRunCommands() {
             elements.runButton.disabled = false;
             elements.resetButton.disabled = false;
             if (elements.stepButton) elements.stepButton.disabled = true;
-            checkWinCondition(totalLinesWritten);
+            checkWinCondition(totalCommandsWritten);
             return;
         }
 
@@ -524,10 +532,10 @@ export function parseAndRunCommands() {
         if (robotState.dir === 3) targetX--;
 
         const gridSize = levels[currentLevel].gridSize;
+        const walls = levels[currentLevel].walls || [];
 
         switch (cmd.type) {
-            case 'move':
-                const walls = levels[currentLevel].walls || [];
+            case 'move': {
                 const isWall = walls.some(w => w.x === targetX && w.y === targetY);
                 const isEnemy = activeEnemies.some(e => e.x === targetX && e.y === targetY);
                 const isOutOfBounds = targetX < 0 || targetX >= gridSize || targetY < 0 || targetY >= gridSize;
@@ -540,23 +548,29 @@ export function parseAndRunCommands() {
                     sound.playMove();
                 }
                 break;
+            }
 
-            case 'shoot':
+            case 'shoot': {
                 sound.playShoot();
-                triggerLaserEffect(robotState.x, robotState.y, targetX, targetY);
 
                 const enemyIdx = activeEnemies.findIndex(e => e.x === targetX && e.y === targetY);
-                if (enemyIdx > -1) {
+                const hasEnemy = enemyIdx > -1;
+                const isWall = walls.some(w => w.x === targetX && w.y === targetY);
+
+                let enemyEl = null;
+                if (hasEnemy) {
                     activeEnemies.splice(enemyIdx, 1);
-                    const enemyEl = document.querySelector(`.enemy[data-x='${targetX}'][data-y='${targetY}']`);
-                    if (enemyEl) {
-                        enemyEl.style.transition = 'all 0.3s ease-out';
-                        enemyEl.style.transform = 'scale(1.4) rotate(45deg)';
-                        enemyEl.style.opacity = '0';
-                        setTimeout(() => enemyEl.remove(), 320);
-                    }
+                    enemyEl = document.querySelector(`.enemy[data-x='${targetX}'][data-y='${targetY}']`);
+                    sound.playEnemyExplosion();
                 }
+
+                triggerLaserEffect(robotState.x, robotState.y, robotState.dir, targetX, targetY, {
+                    hasEnemy,
+                    enemyEl,
+                    isWall
+                });
                 break;
+            }
 
             case 'right':
                 robotState.dir = (robotState.dir + 1) % 4;
@@ -612,17 +626,70 @@ export function stepForward() {
 }
 
 /**
- * Efeito visual de feixe de laser ao atirar.
+ * Efeito visual de disparo de laser: recuo mecânico do robô, projétil em trânsito e impacto no alvo.
+ * Mantém total estabilidade do CSS Grid, eliminando qualquer flicker ou distorção.
  */
-function triggerLaserEffect(fromX, fromY, toX, toY) {
+function triggerLaserEffect(fromX, fromY, dir, toX, toY, { hasEnemy, enemyEl, isWall }) {
     const gridSize = levels[currentLevel].gridSize;
+    const robotCellIndex = fromY * gridSize + fromX;
+    const robotCell = elements.gridContainer.children[robotCellIndex];
+
+    // 1. Recuo mecânico do robô no eixo local de disparo
+    if (robotElement) {
+        robotElement.classList.remove('robot-firing');
+        void robotElement.offsetWidth;
+        robotElement.classList.add('robot-firing');
+        setTimeout(() => {
+            if (robotElement) robotElement.classList.remove('robot-firing');
+        }, 220);
+    }
+
+    // 2. Projétil laser voando da célula do robô na direção de mira
+    if (robotCell) {
+        const bolt = document.createElement('div');
+        bolt.className = `laser-bolt dir-${dir}`;
+        robotCell.appendChild(bolt);
+        setTimeout(() => bolt.remove(), 180);
+    }
+
+    // 3. Validação segura de limites do grid
+    const isOutOfBounds = toX < 0 || toX >= gridSize || toY < 0 || toY >= gridSize;
+    if (isOutOfBounds) {
+        return;
+    }
+
     const targetCellIndex = toY * gridSize + toX;
     const targetCell = elements.gridContainer.children[targetCellIndex];
+    if (!targetCell) return;
 
-    if (targetCell) {
-        targetCell.classList.add('laser-flash');
-        setTimeout(() => targetCell.classList.remove('laser-flash'), 300);
-    }
+    // 4. Impacto visual sincronizado ao fim do voo (~70ms)
+    setTimeout(() => {
+        if (hasEnemy) {
+            // Explosão concentrada de plasma dentro da célula alvo
+            const explosion = document.createElement('div');
+            explosion.className = 'enemy-explosion-fx';
+            targetCell.appendChild(explosion);
+            setTimeout(() => explosion.remove(), 380);
+
+            // Desintegração suave do drone inimigo
+            if (enemyEl) {
+                enemyEl.classList.add('enemy-destroyed');
+                setTimeout(() => enemyEl.remove(), 320);
+            }
+        } else if (isWall) {
+            // Faíscas de ricochete na blindagem da parede
+            const wallSparks = document.createElement('div');
+            wallSparks.className = 'wall-impact-fx';
+            targetCell.appendChild(wallSparks);
+            setTimeout(() => wallSparks.remove(), 280);
+        } else {
+            // Dissipação no ar
+            const fizzle = document.createElement('div');
+            fizzle.className = 'laser-fizzle-fx';
+            targetCell.appendChild(fizzle);
+            setTimeout(() => fizzle.remove(), 240);
+        }
+    }, 70);
 }
 
 /**
@@ -630,15 +697,19 @@ function triggerLaserEffect(fromX, fromY, toX, toY) {
  */
 function triggerCollisionEffect() {
     if (robotElement) {
+        robotElement.classList.remove('robot-collision-shake');
+        void robotElement.offsetWidth;
         robotElement.classList.add('robot-collision-shake');
-        setTimeout(() => robotElement.classList.remove('robot-collision-shake'), 400);
+        setTimeout(() => {
+            if (robotElement) robotElement.classList.remove('robot-collision-shake');
+        }, 450);
     }
 }
 
 /**
  * Avalia se o robô chegou na estrela (condição de vitória).
  */
-function checkWinCondition(linesCount) {
+function checkWinCondition(commandsCount) {
     const isAtGoal = robotState.x === goalState.x && robotState.y === goalState.y;
     const isLastLevel = currentLevel >= levels.length - 1;
 
@@ -646,7 +717,8 @@ function checkWinCondition(linesCount) {
         sound.playSuccess();
         const levelConfig = levels[currentLevel];
         const result = calculateResult(currentLevel, {
-            linesCount,
+            linesCount: commandsCount,
+            commandsCount,
             usedHint: usedHintInCurrentAttempt,
             optimalLines: levelConfig.optimalLines || 5
         });

@@ -75,13 +75,14 @@ export function getLevelData(levelIndex) {
  * - 2 Estrelas: Concluiu sem consultar a dica.
  * - 3 Estrelas: Concluiu com código enxuto (linhas/comandos <= meta ideal do nível).
  */
-export function calculateResult(levelIndex, { linesCount, usedHint, optimalLines = 5 }) {
+export function calculateResult(levelIndex, { linesCount, commandsCount, usedHint, optimalLines = 5 }) {
+    const totalCommands = commandsCount !== undefined ? commandsCount : linesCount;
     let stars = 1; // 1 estrela garantida por vencer
 
     const starDetails = {
         goalReached: true,
         noHints: !usedHint,
-        codeOptimized: linesCount <= optimalLines
+        codeOptimized: totalCommands <= optimalLines
     };
 
     if (starDetails.noHints) stars++;
@@ -97,9 +98,9 @@ export function calculateResult(levelIndex, { linesCount, usedHint, optimalLines
         score += 200; // Bônus bom
     }
 
-    // Bônus de eficiência se escreveu menos linhas que a meta
-    if (linesCount < optimalLines) {
-        score += (optimalLines - linesCount) * 100;
+    // Bônus de eficiência se escreveu menos comandos que a meta
+    if (totalCommands < optimalLines) {
+        score += (optimalLines - totalCommands) * 100;
     }
 
     // Penalidade pelo uso de dica
@@ -111,7 +112,8 @@ export function calculateResult(levelIndex, { linesCount, usedHint, optimalLines
         stars,
         score,
         starDetails,
-        linesCount,
+        linesCount: totalCommands,
+        commandsCount: totalCommands,
         optimalLines
     };
 }
@@ -134,6 +136,7 @@ export function recordLevelVictory(levelIndex, resultData, totalLevelsCount) {
     existing.stars = Math.max(existing.stars || 0, resultData.stars);
     existing.bestScore = Math.max(existing.bestScore || 0, resultData.score);
     existing.lastLines = resultData.linesCount;
+    existing.lastCommands = resultData.commandsCount || resultData.linesCount;
 
     progress.levelData[levelIndex] = existing;
 
@@ -173,12 +176,74 @@ export function recordLevelAttempt(levelIndex) {
     saveProgress(progress);
 }
 
+const CODE_STORAGE_PREFIX = 'keycode_user_code_lvl_';
+const LEGACY_STORAGE_PREFIX = 'keycode_saved_code_lvl_';
+
+// Limpeza preventiva de chaves legadas que continham starter code pré-preenchido
+try {
+    if (typeof localStorage !== 'undefined') {
+        for (let i = 0; i < 20; i++) {
+            localStorage.removeItem(`${LEGACY_STORAGE_PREFIX}${i}`);
+        }
+    }
+} catch (e) {
+    // ignore
+}
+
+/**
+ * Salva o código digitado pelo aluno para uma fase específica.
+ */
+export function saveLevelCode(levelIndex, code) {
+    try {
+        if (typeof localStorage === 'undefined') return;
+        localStorage.setItem(`${CODE_STORAGE_PREFIX}${levelIndex}`, code);
+    } catch (e) {
+        console.warn('Erro ao salvar código da fase no localStorage:', e);
+    }
+}
+
+/**
+ * Carrega o código previamente salvo pelo aluno para uma fase específica.
+ */
+export function loadLevelCode(levelIndex) {
+    try {
+        if (typeof localStorage === 'undefined') return null;
+        return localStorage.getItem(`${CODE_STORAGE_PREFIX}${levelIndex}`);
+    } catch (e) {
+        console.warn('Erro ao carregar código da fase:', e);
+        return null;
+    }
+}
+
+/**
+ * Remove o código salvo de uma fase (para restaurar o editor vazio).
+ */
+export function clearLevelCode(levelIndex) {
+    try {
+        if (typeof localStorage === 'undefined') return;
+        localStorage.removeItem(`${CODE_STORAGE_PREFIX}${levelIndex}`);
+        localStorage.removeItem(`${LEGACY_STORAGE_PREFIX}${levelIndex}`);
+    } catch (e) {
+        console.warn('Erro ao limpar código da fase:', e);
+    }
+}
+
 /**
  * Reinicia todo o progresso do jogo (útil para testes ou novo aluno).
  */
 export function resetAllProgress() {
     const fresh = getDefaultProgress();
     saveProgress(fresh);
+    try {
+        if (typeof localStorage !== 'undefined') {
+            for (let i = 0; i < 50; i++) {
+                localStorage.removeItem(`${CODE_STORAGE_PREFIX}${i}`);
+                localStorage.removeItem(`${LEGACY_STORAGE_PREFIX}${i}`);
+            }
+        }
+    } catch (e) {
+        // ignore
+    }
     return fresh;
 }
 

@@ -137,6 +137,45 @@ class SoundEngine {
         osc.stop(now + 0.2);
     }
 
+    // Som de Explosão / Destruição de Drone Inimigo
+    playEnemyExplosion() {
+        if (this.muted) return;
+        this.initContext();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+
+        // Camada 1: Impacto grave percussivo
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(220, now);
+        osc1.frequency.exponentialRampToValueAtTime(35, now + 0.22);
+
+        gain1.gain.setValueAtTime(0.28, now);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.22);
+
+        // Camada 2: Ruído estático / faíscas elétricas de sobrecarga
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'square';
+        osc2.frequency.setValueAtTime(480, now);
+        osc2.frequency.exponentialRampToValueAtTime(90, now + 0.18);
+
+        gain2.gain.setValueAtTime(0.18, now);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+
+        osc2.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        osc2.start(now);
+        osc2.stop(now + 0.18);
+    }
+
     // Som de Colisão com Parede / Obstáculo (Impacto grave)
     playHit() {
         if (this.muted) return;

@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KeyCode | Plataforma Educacional de Programação</title>
-    
+
     <!-- Google Fonts: Urbanist (Títulos), Inter (Interface), JetBrains Mono (Código) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Urbanist:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Urbanist:wght@600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <!-- Link para folha de estilos CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
     <!-- Container principal que centraliza o conteúdo do jogo -->
     <div class="main-container">
-        
+
         <!-- Cabeçalho da página & HUD Gamer Moderno -->
         <header class="app-header">
             <div class="brand">
@@ -38,61 +42,70 @@
                                 <stop offset="100%" stop-color="#FF8F00" />
                             </linearGradient>
                             <filter id="starGlowHeader" x="-30%" y="-30%" width="160%" height="160%">
-                                <feDropShadow dx="0" dy="0" stdDeviation="1" flood-color="#FFC107" flood-opacity="0.9"/>
+                                <feDropShadow dx="0" dy="0" stdDeviation="1" flood-color="#FFC107"
+                                    flood-opacity="0.9" />
                             </filter>
                         </defs>
 
                         <!-- Base Squircle Dark Slate com Borda Neon Ciano/Verde -->
-                        <rect x="2.5" y="2.5" width="27" height="27" rx="7.5" fill="#1E232D" stroke="url(#kcModernGradHeader)" stroke-width="1.75"/>
+                        <rect x="2.5" y="2.5" width="27" height="27" rx="7.5" fill="#1E232D"
+                            stroke="url(#kcModernGradHeader)" stroke-width="1.75" />
 
                         <!-- Trilha tática de mira e perseguição na diagonal -->
-                        <path d="M 13.5 17.5 L 19.5 11.5" stroke="#00F5FF" stroke-width="1.6" stroke-dasharray="2 2" stroke-linecap="round" stroke-opacity="0.8"/>
+                        <path d="M 13.5 17.5 L 19.5 11.5" stroke="#00F5FF" stroke-width="1.6" stroke-dasharray="2 2"
+                            stroke-linecap="round" stroke-opacity="0.8" />
 
                         <!-- Jatos de Propulsão Neon atrás do robô -->
-                        <line x1="4.8" y1="26.5" x2="3.2" y2="28.2" stroke="#00F5FF" stroke-width="1.8" stroke-linecap="round"/>
-                        <line x1="7.2" y1="28.8" x2="5.8" y2="30.2" stroke="#28C76F" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="4.8" y1="26.5" x2="3.2" y2="28.2" stroke="#00F5FF" stroke-width="1.8"
+                            stroke-linecap="round" />
+                        <line x1="7.2" y1="28.8" x2="5.8" y2="30.2" stroke="#28C76F" stroke-width="1.5"
+                            stroke-linecap="round" />
 
                         <!-- Robô Protagonista (angulado na diagonal ~25° caçando a estrela) -->
                         <g transform="translate(10.5, 20.5) rotate(-24) translate(-10.5, -20.5)">
                             <!-- Antena cyber com emissor -->
-                            <line x1="10.5" y1="9.8" x2="10.5" y2="12.8" stroke="#00F5FF" stroke-width="1.6" stroke-linecap="round"/>
-                            <circle cx="10.5" cy="9.2" r="1.5" fill="#00F5FF"/>
+                            <line x1="10.5" y1="9.8" x2="10.5" y2="12.8" stroke="#00F5FF" stroke-width="1.6"
+                                stroke-linecap="round" />
+                            <circle cx="10.5" cy="9.2" r="1.5" fill="#00F5FF" />
 
                             <!-- Atuadores / Braços laterais -->
-                            <rect x="2.8" y="16.5" width="2.4" height="6.5" rx="1.2" fill="#00F5FF"/>
-                            <rect x="15.8" y="16.5" width="2.4" height="6.5" rx="1.2" fill="#00F5FF"/>
+                            <rect x="2.8" y="16.5" width="2.4" height="6.5" rx="1.2" fill="#00F5FF" />
+                            <rect x="15.8" y="16.5" width="2.4" height="6.5" rx="1.2" fill="#00F5FF" />
 
                             <!-- Chassi principal da cabeça -->
-                            <rect x="5.2" y="12.5" width="10.6" height="12.5" rx="3.5" fill="url(#botChassisHeader)" stroke="#00F5FF" stroke-width="1.5"/>
+                            <rect x="5.2" y="12.5" width="10.6" height="12.5" rx="3.5" fill="url(#botChassisHeader)"
+                                stroke="#00F5FF" stroke-width="1.5" />
 
                             <!-- Visor panorâmico escuro -->
-                            <rect x="6.5" y="14.8" width="8" height="4.8" rx="2.4" fill="#090E17"/>
+                            <rect x="6.5" y="14.8" width="8" height="4.8" rx="2.4" fill="#090E17" />
 
                             <!-- Olhos de LED Ciano (focados no canto superior direito) -->
-                            <circle cx="8.6" cy="17.2" r="1.3" fill="#00F5FF"/>
-                            <circle cx="12.4" cy="17.2" r="1.3" fill="#00F5FF"/>
-                            <circle cx="9" cy="16.7" r="0.5" fill="#ffffff"/>
-                            <circle cx="12.8" cy="16.7" r="0.5" fill="#ffffff"/>
+                            <circle cx="8.6" cy="17.2" r="1.3" fill="#00F5FF" />
+                            <circle cx="12.4" cy="17.2" r="1.3" fill="#00F5FF" />
+                            <circle cx="9" cy="16.7" r="0.5" fill="#ffffff" />
+                            <circle cx="12.8" cy="16.7" r="0.5" fill="#ffffff" />
 
                             <!-- Núcleo Reator de Energia Peitoral -->
-                            <rect x="8.2" y="21.8" width="4.6" height="1.8" rx="0.9" fill="#00F5FF"/>
+                            <rect x="8.2" y="21.8" width="4.6" height="1.8" rx="0.9" fill="#00F5FF" />
                         </g>
 
                         <!-- Estrela Dourada Conquistável (limpa, nítida e radiante) -->
                         <g filter="url(#starGlowHeader)">
-                            <path d="M 23 3.8 L 24.8 8.4 L 29.6 9 L 26 12.5 L 27 17.2 L 23 14.8 L 19 17.2 L 20 12.5 L 16.4 9 L 21.2 8.4 Z" fill="url(#starGoldHeader)" stroke="#FFFDE7" stroke-width="0.9" stroke-linejoin="round"/>
+                            <path
+                                d="M 23 3.8 L 24.8 8.4 L 29.6 9 L 26 12.5 L 27 17.2 L 23 14.8 L 19 17.2 L 20 12.5 L 16.4 9 L 21.2 8.4 Z"
+                                fill="url(#starGoldHeader)" stroke="#FFFDE7" stroke-width="0.9"
+                                stroke-linejoin="round" />
                             <!-- Brilho facetado suave no topo -->
-                            <path d="M 23 3.8 L 23 14.8 L 19 17.2 L 20 12.5 L 16.4 9 L 21.2 8.4 Z" fill="#ffffff" fill-opacity="0.3"/>
+                            <path d="M 23 3.8 L 23 14.8 L 19 17.2 L 20 12.5 L 16.4 9 L 21.2 8.4 Z" fill="#ffffff"
+                                fill-opacity="0.3" />
                         </g>
-                        <circle cx="28.8" cy="4.8" r="0.8" fill="#FFF176"/>
+                        <circle cx="28.8" cy="4.8" r="0.8" fill="#FFF176" />
                     </svg>
                 </div>
                 <h1>KeyCode</h1>
-                <span id="level-concept" class="concept-badge">Instruções Sequenciais</span>
             </div>
 
             <div class="header-level-section">
-                <p id="level-title">Nível 1: Primeiros Passos</p>
                 <div class="level-selector-container">
                     <label for="level-selector">Fase:</label>
                     <select id="level-selector">
@@ -112,43 +125,57 @@
                                     <stop offset="100%" stop-color="#FFB300" />
                                 </linearGradient>
                             </defs>
-                            <path d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z" fill="url(#hudStarModernHeader)" stroke="#FFE082" stroke-width="1.2" stroke-linejoin="round"/>
+                            <path
+                                d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"
+                                fill="url(#hudStarModernHeader)" stroke="#FFE082" stroke-width="1.2"
+                                stroke-linejoin="round" />
                         </svg>
                     </span>
-                    <span id="total-stars-display">0 / 15</span>
+                    <span id="total-stars-display">0 / 24</span>
                 </div>
                 <div class="hud-pill" title="Pontuação acumulada">
                     <span class="hud-pill-icon kc-trophy-gold">
-                        <svg class="kc-icon kc-trophy" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="kc-icon kc-trophy" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 <linearGradient id="trophyModernHeader" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#FFD54F" />
                                     <stop offset="100%" stop-color="#FF9800" />
                                 </linearGradient>
                             </defs>
-                            <path d="M6 3H18V9.5C18 12.8 15.3 15.5 12 15.5C8.7 15.5 6 12.8 6 9.5V3Z" fill="url(#trophyModernHeader)" stroke="#FFE082" stroke-width="1.2"/>
-                            <path d="M6 4.5H3.5C2.7 4.5 2 5.2 2 6V8C2 9.7 3.3 11 5 11H6.3" stroke="#FFB300" stroke-width="1.8" stroke-linecap="round"/>
-                            <path d="M18 4.5H20.5C21.3 4.5 22 5.2 22 6V8C22 9.7 20.7 11 19 11H17.7" stroke="#FFB300" stroke-width="1.8" stroke-linecap="round"/>
-                            <path d="M12 15.5V18.5M8 21.5H16M9 18.5H15" stroke="#FFB300" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M6 3H18V9.5C18 12.8 15.3 15.5 12 15.5C8.7 15.5 6 12.8 6 9.5V3Z"
+                                fill="url(#trophyModernHeader)" stroke="#FFE082" stroke-width="1.2" />
+                            <path d="M6 4.5H3.5C2.7 4.5 2 5.2 2 6V8C2 9.7 3.3 11 5 11H6.3" stroke="#FFB300"
+                                stroke-width="1.8" stroke-linecap="round" />
+                            <path d="M18 4.5H20.5C21.3 4.5 22 5.2 22 6V8C22 9.7 20.7 11 19 11H17.7" stroke="#FFB300"
+                                stroke-width="1.8" stroke-linecap="round" />
+                            <path d="M12 15.5V18.5M8 21.5H16M9 18.5H15" stroke="#FFB300" stroke-width="1.8"
+                                stroke-linecap="round" />
                         </svg>
                     </span>
                     <span id="total-score-display">0 pts</span>
                 </div>
                 <button id="sound-toggle-btn" class="hud-btn" type="button" title="Ativar ou desativar efeitos sonoros">
                     <span class="btn-icon">
-                        <svg class="kc-icon kc-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" fill-opacity="0.3"/>
-                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                        <svg class="kc-icon kc-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"
+                                fill-opacity="0.3" />
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
                         </svg>
                     </span>
                     <span>Áudio Ativo</span>
                 </button>
-                <button id="reset-progress-btn" class="hud-btn hud-btn-outline" type="button" title="Reiniciar histórico e dados salvos">
+                <button id="reset-progress-btn" class="hud-btn hud-btn-outline" type="button"
+                    title="Reiniciar histórico e dados salvos">
                     <span class="btn-icon">
-                        <svg class="kc-icon kc-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L2 8"/>
-                            <polyline points="2 3 2 8 7 8"/>
+                        <svg class="kc-icon kc-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L2 8" />
+                            <polyline points="2 3 2 8 7 8" />
                         </svg>
                     </span>
                     <span>Reiniciar</span>
@@ -163,18 +190,20 @@
             <aside class="control-panel">
                 <div class="panel-header">
                     <h2>Editor de Algoritmos</h2>
-                    <span class="editor-subtitle">Escreva instruções para o robô</span>
+                    <span id="level-concept" class="editor-subtitle">Escreva instruções para o robô</span>
                 </div>
-                
+
                 <!-- Guia de Comandos com Accordion Retrátil -->
                 <details class="instructions-panel">
                     <summary class="instructions-header" title="Clique para abrir ou recolher o guia de comandos">
                         <div class="instructions-title-wrap">
                             <span class="panel-icon">
-                                <svg class="kc-icon kc-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                                    <path d="M9 7h6M9 11h4"/>
+                                <svg class="kc-icon kc-book" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                    <path d="M9 7h6M9 11h4" />
                                 </svg>
                             </span>
                             <h3>Guia de Comandos</h3>
@@ -183,12 +212,16 @@
                             <span class="btn-text-closed">Ver Comandos</span>
                             <span class="btn-text-open">Recolher</span>
                             <span class="details-chevron">
-                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
                             </span>
                         </div>
                     </summary>
                     <div class="instructions-content">
-                        <p class="instructions-intro">Guie o robô até a estrela amarela, desviando de barreiras e desativando drones com seu canhão laser.</p>
+                        <p class="instructions-intro">Guie o robô até a estrela amarela, desviando de barreiras e
+                            desativando drones com seu canhão laser.</p>
                         <ul>
                             <li><span>mover(n)</span>: Avança 'n' casas para frente.</li>
                             <li><span>virarDireita(n)</span>: Gira 90° à direita 'n' vezes.</li>
@@ -196,21 +229,10 @@
                             <li><span>atirarNaFrente()</span>: Destrói obstáculo/drone 1 casa à frente.</li>
                             <li><span>repetir(n) { ... }</span>: Laço para repetir comandos 'n' vezes.</li>
                         </ul>
-                        <p class="tip"><strong>Dica:</strong> Comandos com parâmetro vazio, como <code>mover()</code>, equivalem a 1 passo.</p>
+                        <p class="tip"><strong>Dica:</strong> Comandos com parâmetro vazio, como <code>mover()</code>,
+                            equivalem a 1 passo.</p>
                     </div>
                 </details>
-
-                <!-- Chips de Inserção Rápida (Apoio Pedagógico para digitação) -->
-                <div class="quick-chips-wrapper">
-                    <span class="quick-chips-title">Inserção Rápida:</span>
-                    <div class="quick-chips-list">
-                        <button type="button" class="quick-chip" data-insert="mover(1)">+ mover()</button>
-                        <button type="button" class="quick-chip" data-insert="virarDireita()">+ virarDireita()</button>
-                        <button type="button" class="quick-chip" data-insert="virarEsquerda()">+ virarEsquerda()</button>
-                        <button type="button" class="quick-chip" data-insert="atirarNaFrente()">+ atirarNaFrente()</button>
-                        <button type="button" class="quick-chip" data-insert="repetir(2) {\n  mover(1)\n}">+ repetir(2) { }</button>
-                    </div>
-                </div>
 
                 <!-- Banner de Erro de Sintaxe Amigável -->
                 <div id="syntax-error-banner" class="syntax-banner hidden"></div>
@@ -218,9 +240,47 @@
                 <!-- Status de Linha em Execução em Tempo Real -->
                 <div id="execution-status" class="execution-status hidden"></div>
 
-                <!-- Área de texto onde o aluno escreve o código -->
-                <div class="editor-container">
-                    <textarea id="code-editor" spellcheck="false" placeholder="// Digite seu código aqui:&#10;mover(4)&#10;virarDireita()&#10;mover(2)"></textarea>
+                <!-- Mini-IDE KeyCode: Editor com Gutter, Realce de Sintaxe e Rastreamento Visual -->
+                <div class="ide-wrapper">
+                    <div class="ide-header">
+                        <div class="ide-file-tab">
+                            <span class="tab-indicator"></span>
+                            <span class="tab-name">algoritmo.kc</span>
+                        </div>
+                        <div class="ide-header-tools">
+                            <span id="editor-line-count" class="ide-line-count">1 linha • 0 comandos</span>
+                            <button type="button" id="copy-code-btn" class="ide-tool-btn" title="Copiar código do editor">
+                                <svg class="kc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span>Copiar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="editor-container" id="editor-container">
+                        <!-- Barra Lateral de Numeração de Linhas (Gutter) -->
+                        <div id="editor-gutter" class="editor-gutter" aria-hidden="true">
+                            <div class="gutter-line" data-line="1"><span class="gutter-num">1</span></div>
+                        </div>
+
+                        <!-- Área de Código (Destaque Visual + Textarea Sobreposto) -->
+                        <div class="editor-textarea-wrapper">
+                            <pre id="editor-highlight" class="editor-highlight" aria-hidden="true"><div id="active-line-bar" class="active-line-bar"></div><code id="editor-highlight-content"></code></pre>
+                            <textarea id="code-editor" spellcheck="false"
+                                placeholder="// Digite suas instruções aqui..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="ide-footer">
+                        <div class="ide-shortcuts">
+                            <span class="shortcut-pill"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Executar</span>
+                            <span class="shortcut-pill"><kbd>Tab</kbd> Indentar (2 espaços)</span>
+                            <span class="shortcut-pill"><kbd>Espaço</kbd> Avançar</span>
+                        </div>
+                        <span id="editor-save-status" class="editor-save-status">Salvo localmente ✓</span>
+                    </div>
                 </div>
 
                 <!-- Barra de Controle de Velocidade e Passo a Passo -->
@@ -228,47 +288,59 @@
                     <div class="speed-left">
                         <span class="speed-label">Velocidade:</span>
                         <div class="speed-buttons-group">
-                            <button type="button" class="speed-btn active" data-speed="normal" title="Velocidade normal">1x</button>
-                            <button type="button" class="speed-btn" data-speed="fast" title="Execução acelerada">2x</button>
-                            <button type="button" class="speed-btn" data-speed="step" title="Avançar comando por comando manualmente">Passo a Passo</button>
+                            <button type="button" class="speed-btn active" data-speed="normal"
+                                title="Velocidade normal">1x</button>
+                            <button type="button" class="speed-btn" data-speed="fast"
+                                title="Execução acelerada">2x</button>
+                            <button type="button" class="speed-btn" data-speed="step"
+                                title="Avançar comando por comando manualmente">Passo a Passo</button>
                         </div>
                     </div>
-                    <button type="button" id="step-button" class="btn btn-step" disabled title="Executar o próximo comando no modo Passo a Passo">
+                    <button type="button" id="step-button" class="btn btn-step" disabled
+                        title="Executar o próximo comando no modo Passo a Passo">
                         <span class="btn-icon">
-                            <svg class="kc-icon kc-step" viewBox="0 0 24 24" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
-                                <polygon points="4 5 12 12 4 19"/>
-                                <polygon points="12 5 20 12 12 19"/>
+                            <svg class="kc-icon kc-step" viewBox="0 0 24 24" fill="currentColor" stroke="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="4 5 12 12 4 19" />
+                                <polygon points="12 5 20 12 12 19" />
                             </svg>
                         </span>
                         <span>Avançar</span>
                     </button>
                 </div>
-                
+
                 <!-- Botões de ação principais -->
                 <div class="button-grid">
                     <button id="run-button" class="btn btn-green">
                         <span class="btn-icon">
-                            <svg class="kc-icon kc-play" viewBox="0 0 24 24" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
-                                <polygon points="6 4 20 12 6 20"/>
+                            <svg class="kc-icon kc-play" viewBox="0 0 24 24" fill="currentColor" stroke="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="6 4 20 12 6 20" />
                             </svg>
                         </span>
                         <span>Executar Código</span>
                     </button>
                     <button id="reset-button" class="btn btn-red">
                         <span class="btn-icon">
-                            <svg class="kc-icon kc-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                <line x1="10" y1="11" x2="10" y2="17"/>
-                                <line x1="14" y1="11" x2="14" y2="17"/>
+                            <svg class="kc-icon kc-clear" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                <line x1="10" y1="11" x2="10" y2="17" />
+                                <line x1="14" y1="11" x2="14" y2="17" />
                             </svg>
                         </span>
                         <span>Limpar Editor</span>
                     </button>
                     <button id="hint-button" class="btn btn-yellow btn-full">
                         <span class="btn-icon">
-                            <svg class="kc-icon kc-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 18h6M10 22h4"/>
-                                <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
+                            <svg class="kc-icon kc-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 18h6M10 22h4" />
+                                <path
+                                    d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z" />
                             </svg>
                         </span>
                         <span>Pegar uma Dica</span>
@@ -291,9 +363,10 @@
 
         <!-- Rodapé compacto da página -->
         <footer class="footer">
-            <span>Projeto de Extensão Acadêmica <strong>IFSP Catanduva</strong> &bull; Escola Mario Florence</span>
+            <span>Projeto de Extensão Acadêmica <strong>IFSP Catanduva</strong></span>
             <span class="footer-divider">|</span>
-            <span>Desenvolvido por <a href="https://github.com/PedroPereiraAst" target="_blank">@PedroPereira</a> &amp; <a href="https://github.com/RyanCantareli" target="_blank">@RyanCantareli</a></span>
+            <span>Desenvolvido por <a href="https://github.com/PedroPereiraAst" target="_blank">@PedroPereira</a> &amp;
+                <a href="https://github.com/RyanAguiiarr" target="_blank">@RyanCantareli</a></span>
         </footer>
     </div>
 
@@ -313,9 +386,11 @@
     <div id="hint-box" class="modal">
         <h2 class="modal-title-hint">
             <span class="modal-hint-icon">
-                <svg class="kc-icon kc-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 18h6M10 22h4"/>
-                    <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
+                <svg class="kc-icon kc-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18h6M10 22h4" />
+                    <path
+                        d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z" />
                 </svg>
             </span>
             <span>Dica Pedagógica</span>
@@ -327,4 +402,5 @@
     <!-- Script Principal como Módulo ES6 -->
     <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

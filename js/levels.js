@@ -62,7 +62,7 @@ export const levels = [
     },
     {
         id: 5,
-        title: "Nível 5: Desafio Final",
+        title: "Nível 5: Desafio Tático",
         concept: "Algoritmo Composto & Eliminação Estratégica",
         gridSize: 5,
         robot: { x: 0, y: 4, dir: 0 },
@@ -77,5 +77,60 @@ export const levels = [
         ],
         optimalLines: 12,
         hint: "Junte tudo o que você aprendeu: desvie das paredes, posicione o robô na direção de cada inimigo e use atirarNaFrente() para abrir caminho!"
+    },
+    {
+        id: 6,
+        title: "Nível 6: A Grande Escadaria",
+        concept: "Laços de Repetição & Reconhecimento de Padrões",
+        gridSize: 5,
+        robot: { x: 0, y: 4, dir: 0 },
+        goal: { x: 4, y: 0 },
+        walls: [
+            { x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 },
+            { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 4, y: 1 },
+            { x: 0, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 2 },
+            { x: 2, y: 3 }, { x: 3, y: 3 }, { x: 4, y: 3 },
+            { x: 1, y: 4 }, { x: 2, y: 4 }, { x: 3, y: 4 }, { x: 4, y: 4 }
+        ],
+        optimalLines: 6,
+        hint: "Observe o padrão dos degraus: o robô sobe 1 casa, vira à direita, avança 1 casa e vira à esquerda. Use repetir(4) { ... } para economizar código e garantir 3 estrelas!"
+    },
+    {
+        id: 7,
+        title: "Nível 7: A Ronda do Perímetro",
+        concept: "Laço com Parâmetros & Rotação Angular",
+        gridSize: 5,
+        robot: { x: 0, y: 4, dir: 0 },
+        goal: { x: 4, y: 4 },
+        walls: [
+            { x: 1, y: 1 }, { x: 2, y: 1 }, { x: 3, y: 1 },
+            { x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 },
+            { x: 1, y: 3 }, { x: 2, y: 3 }, { x: 3, y: 3 },
+            { x: 1, y: 4 }, { x: 2, y: 4 }, { x: 3, y: 4 }
+        ],
+        optimalLines: 4,
+        hint: "O caminho direto inferior está fechado! Contorne a grande barreira central pelas 3 faces livres usando repetir(3) { mover(4); virarDireita(); }."
+    },
+    {
+        id: 8,
+        title: "Nível 8: Varredura Laser",
+        concept: "Algoritmos Cíclicos com Ações Compostas",
+        gridSize: 5,
+        robot: { x: 2, y: 4, dir: 0 },
+        goal: { x: 2, y: 0 },
+        enemies: [
+            { x: 2, y: 3 },
+            { x: 2, y: 2 },
+            { x: 2, y: 1 }
+        ],
+        walls: [
+            { x: 0, y: 0 }, { x: 1, y: 0 }, { x: 3, y: 0 }, { x: 4, y: 0 },
+            { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 3, y: 1 }, { x: 4, y: 1 },
+            { x: 0, y: 2 }, { x: 1, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 2 },
+            { x: 0, y: 3 }, { x: 1, y: 3 }, { x: 3, y: 3 }, { x: 4, y: 3 },
+            { x: 0, y: 4 }, { x: 1, y: 4 }, { x: 3, y: 4 }, { x: 4, y: 4 }
+        ],
+        optimalLines: 5,
+        hint: "Três drones bloqueiam o túnel até a estrela. Dispare e avance repetidamente em laço: repetir(3) { atirarNaFrente(); mover(1); } seguido de mover(1) para a vitória!"
     }
 ];
